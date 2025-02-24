@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Diagnostic & Optimisation</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <style>
+        /* styles.css */
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+
+        :root {
+            --couleur-primaire: #66a5ad; /* Bleu-vert doux */
+            --couleur-secondaire: #86acaa; /* Vert d'eau */
+            --couleur-accent: #f4a261; /* Orange chaud */
+            --couleur-fond: #f8f9fa; /* Gris très clair */
+            --couleur-texte: #495057; /* Gris foncé */
+            --police-famille: 'Roboto', Arial, sans-serif;
+        }
+
+        body {
+            font-family: var(--police-famille);
+            background-color: var(--couleur-fond);
+            color: var(--couleur-texte);
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            transition: background-color 0.3s ease;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--couleur-primaire);
+            margin-top: 2rem;
+            animation: fadeInDown 0.8s ease-out;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        form {
+            max-width: 700px;
+            margin: 30px auto;
+            padding: 30px;
+            background-color: #fff;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        form:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        form div {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #555;
+            transition: color 0.3s ease;
+        }
+
+        input[type="file"],
+        input[type="number"],
+        select {
+            width: calc(100% - 16px);
+            padding: 12px;
+            margin-top: 8px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        input[type="file"]:focus,
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--couleur-primaire);
+            box-shadow: 0 0 5px rgba(102, 165, 173, 0.5); /* Couleur primaire en rgba */
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            font-size: 18px;
+            background: linear-gradient(to right, var(--couleur-primaire), var(--couleur-secondaire));
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            font-weight: 500;
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        #errorMessages {
+            color: #dc3545;
+            list-style-type: none;
+            padding: 0;
+            margin-top: 10px;
+            animation: shake 0.5s ease-in-out;
+        }
+
+        #result, #optimizedResult {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 30px;
+            background-color: #fff;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        #result h2, #optimizedResult h2 {
+            color: var(--couleur-primaire);
+            text-align: center;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 30px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 16px 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background-color: var(--couleur-primaire);
+            color: white;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tbody tr:hover {
+            background-color: #f2f2f2;
+            transition: background-color 0.2s ease;
+        }
+
+        .diagnostic-suroffre {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        .diagnostic-sousoffre {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        .header-actions {
+            display: flex;
+            justify-content: flex-end;
+            padding: 20px;
+            background-color: #f8f9fa;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        table#optimizedTable {
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            overflow: hidden;
+            font-size: 15px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            background-color: #f8f9fa;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        table#optimizedTable thead {
+            background-color: var(--couleur-primaire);
+            color: white;
+            text-transform: uppercase;
+        }
+
+        table#optimizedTable th {
+            padding: 14px;
+            text-align: left;
+            font-weight: 500;
+        }
+
+        table#optimizedTable tbody tr:nth-child(odd) {
+            background-color: #e9ecef;
+        }
+
+        table#optimizedTable tbody tr:nth-child(even) {
+            background-color: white;
+        }
+
+        table#optimizedTable tbody tr:hover {
+            background-color: #f1f3f5;
+            transition: background-color 0.2s ease;
+        }
+
+        table#optimizedTable td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        table#optimizedTable td:nth-child(5),
+        table#optimizedTable td:nth-child(6),
+        table#optimizedTable td:nth-child(7),
+        table#optimizedTable td:nth-child(8) {
+            text-align: center;
+        }
+
+        table#optimizedTable td.freq-opti {
+            font-weight: 600;
+        }
+
+        table#optimizedTable td.charge-opti {
+            font-weight: 600;
+        }
+
+        table#optimizedTable td:empty::before {
+            content: "—";
+            font-style: italic;
+            color: #888;
+        }
+
+        .indicators {
+            display: flex;
+            justify-content: space-between;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .indicator-group {
+            width: 45%;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .indicator {
+            background-color: #fff;
+            border: 2px solid #ddd;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            text-align: center;
+            color: #333;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .indicator:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .indicator h3 {
+            font-size: 18px;
+            margin: 0;
+            color: var(--couleur-primaire);
+            font-weight: 600;
+        }
+
+        .indicator p {
+            font-size: 24px;
+            margin: 12px 0 0;
+            font-weight: bold;
+            color: #333;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+            transform: translateY(0);
+
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes shake {
+            0% {
+                transform: translateX(0);
+            }
+            25% {
+                transform: translateX(-5px);
+            }
+            50% {
+                transform: translateX(5px);
+            }
+            75% {
+                transform: translateX(-5px);
+            }
+            100% {
+                transform: translateX(0);
+            }
+        }
+
+        .export-button {
+            padding: 10px 15px;
+            font-size: 14px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background-color 0.2s ease;
+        }
+
+        .export-button:hover {
+            background-color: #218838;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="header-actions">
+        <button id="optimizerButton">Optimisation</button>
+    </div>
+    <h1>Diagnostic et Optimisation - Ligne b</h1>
+    <form id="uploadForm" method="POST" enctype="multipart/form-data">
+        <div>
+            <label for="firstFile"> Fichier Excel offre aux 5 minutes:</label>
+            <input type="file" name="firstFile" id="firstFile" required>
+        </div>
+
+        <div id="selectSheet" class="hidden">
+            <label for="sheet">Choisissez la période d'analyse:</label>
+            <select name="sheet" id="sheet"></select>
+        </div>
+
+        <div id="secondFileDiv" class="hidden">
+            <label for="secondFile">Fichier de fréquentation sens aller (Gaité - Cesson via silva):</label>
+            <input type="file" name="secondFile" id="secondFile">
+        </div>
+
+        <div id="thirdFileDiv" class="hidden">
+            <label for="thirdFile">Fichier de fréquentation sens retour (Cesson via silva - Gaité  ):</label>
+            <input type="file" name="thirdFile" id="thirdFile">
+        </div>
+
+        <div>
+            <label for="peakCapacity">Seuil maximal aux Heures de Pointe:</label>
+            <input type="number" id="peakCapacity" value="168">
+        </div>
+
+        <div>
+            <label for="offPeakCapacity">Seuil maximal aux Heures Creuses:</label>
+            <input type="number" id="offPeakCapacity" value="110">
+        </div>
+
+        <button type="button" id="diagnosticButton">Diagnostic</button>
+    </form>
+    <ul id="errorMessages"></ul>
+
+    <div id="result" class="hidden">
+        <h2>Résultats du Diagnostic</h2>
+        <table id="diagnosticTable"></table>
+         <button class="export-button" onclick="exportTableToExcel('diagnosticTable', 'Diagnostic_Results')">Exporter vers Excel</button>
+    </div>
+
+    <div id="optimizedResult" class="hidden">
+        <h2>Résultats de l'Optimisation</h2>
+        <table id="optimizedTable">
+            <thead>
+            <tr>
+                <th>Direction</th>
+                <th>Tranche Horaire</th>
+                <th>Tranches Offre</th>
+                <th>Fréquence Optimisée</th>
+                <th>Fréquence Existante</th>
+                <th>Charge Optimisée</th>
+                <th>Charge Existante</th>
+                <th>Diagnostic</th>
+            </tr>
+        </thead>
+            <tbody>
+            </tbody>
+        </table>
+        <button class="export-button" onclick="exportTableToExcel('optimizedTable', 'Optimisation_Results')">Exporter vers Excel</button>
+    </div>
+
+    <script>
+        /* script.js */
+        document.addEventListener('DOMContentLoaded', () => {
+            // Ajout des écouteurs d'événements
+            document.getElementById('firstFile').addEventListener('change', handleFirstFileChange);
+            document.getElementById('diagnosticButton').addEventListener('click', processFiles);
+            document.getElementById('optimizerButton').addEventListener('click', optimizeData);
+
+            // Fonction pour gérer le changement du premier fichier
+            async function handleFirstFileChange() {
+                const fileInput = document.getElementById('firstFile');
+                const formData = new FormData();
+                formData.append('firstFile', fileInput.files[0]);
+
+                try {
+                    const data = await uploadFile('/upload_first_file', formData);
+                    if (data && data.sheet_names) {
+                        populateSheetOptions(data.sheet_names);
+                        showFileDivs();
+                    } else {
+                        console.error("Réponse du serveur invalide :", data);
+                        displayErrorMessage("Réponse du serveur invalide. Veuillez réessayer.");
+                    }
+                } catch (error) {
+                    displayErrorMessage(`Erreur lors du chargement du fichier : ${error.message}`);
+                }
+            }
+
+            // Fonction pour remplir les options de la feuille
+            function populateSheetOptions(sheetNames) {
+                const sheetSelect = document.getElementById('sheet');
+                sheetSelect.innerHTML = '';
+                sheetNames.forEach(sheet => {
+                    const option = document.createElement('option');
+                    option.value = sheet;
+                    option.textContent = sheet;
+                    sheetSelect.add(option);
+                });
+            }
+
+            // Fonction pour afficher les divs des fichiers
+            function showFileDivs() {
+                document.getElementById('selectSheet').classList.remove('hidden');
+                document.getElementById('secondFileDiv').classList.remove('hidden');
+                document.getElementById('thirdFileDiv').classList.remove('hidden');
+            }
+
+            // Fonction principale pour traiter les fichiers
+            async function processFiles() {
+                const form = document.getElementById('uploadForm');
+                const formData = new FormData(form);
+
+                try {
+                    const data = await uploadFiles('/process_files', formData);
+                    if (data.error) {
+                        displayErrorMessage(data.error);
+                    } else {
+                        createDiagnosticTable(data);
+                        showResult();
+                    }
+                } catch (error) {
+                    displayErrorMessage(`Erreur lors du traitement des fichiers : ${error.message}`);
+                }
+            }
+
+            // Fonction pour créer le tableau de diagnostic
+            function createDiagnosticTable(data) {
+                const table = document.getElementById('diagnosticTable');
+                table.innerHTML = '';
+                const tbody = table.createTBody();
+
+                // Fonction interne pour ajouter les lignes de diagnostic
+                function addDiagnosticRows(diagnosticData, direction) {
+                    if (diagnosticData) {
+                        const titleRow = tbody.insertRow();
+                        const titleCell = titleRow.insertCell(0);
+                        titleCell.colSpan = 6;
+                        titleCell.innerText = `Diagnostics ${direction}`;
+                        titleCell.style.fontWeight = 'bold';
+
+                        const headerRow = tbody.insertRow();
+                        ['Tranche Horaire', 'Tranches Offre', 'Max Voyageurs', 'Nb Rames Existante', 'Fréquence Existante', 'Diagnostic'].forEach(text => {
+                            const th = document.createElement('th');
+                            th.innerText = text;
+                            headerRow.appendChild(th);
+                        });
+
+                        diagnosticData.forEach(diagnostic => {
+                            const row = tbody.insertRow();
+                            const diagnosis = getDiagnosis(parseInt(diagnostic.max_voyageurs, 10), diagnostic.tranche);
+
+                            ['tranche', 'tranches_offre', 'max_voyageurs', 'nb_rames', 'frequence'].forEach((key, index) => {
+                                const cell = row.insertCell(index);
+                                if (key === 'max_voyageurs' || key === 'nb_rames') {
+                                    const value = parseFloat(diagnostic[key]); // Convertir en nombre à virgule flottante
+                                    cell.innerText = isNaN(value) ? 'N/A' : Math.round(value); // Arrondir et afficher
+                                } else {
+                                    cell.innerText = diagnostic[key] || 'N/A';
+                                }
+                            });
+
+                            const diagnosisCell = row.insertCell(5);
+                            diagnosisCell.innerText = diagnosis;
+                            diagnosisCell.className = getDiagnosticClass(diagnosis);
+                            row.dataset.direction = direction; // Stocker la direction
+                        });
+                    }
+                }
+
+                // Ajout des lignes pour "Sens Aller" et "Sens Retour"
+                addDiagnosticRows(data.diagnostic_sens_aller, "Sens Aller");
+                addDiagnosticRows(data.diagnostic_sens_retour, "Sens Retour");
+            }
+
+            // Fonction pour optimiser les données
+            async function optimizeData() {
+                const diagnosticTable = document.getElementById('diagnosticTable');
+                const optimizedTable = document.getElementById('optimizedTable');
+
+                if (!diagnosticTable || !optimizedTable) {
+                    displayErrorMessage("Tableaux de diagnostic ou d'optimisation introuvables.");
+                    return;
+                }
+
+                const diagnosticRows = Array.from(diagnosticTable.querySelectorAll("tbody tr"));
+                if (diagnosticRows.length === 0) {
+                    displayErrorMessage("Le tableau de diagnostic est vide.");
+                    return;
+                }
+
+                // Filtrer les lignes "Sous-offre"
+                const sousOffreRows = diagnosticRows.filter(row => {
+                    const cells = row.getElementsByTagName('td');
+                    if (cells.length < 6) return false; // Ignorer les lignes invalides
+                    const diagnostic = cells[5].textContent.trim();
+                    return diagnostic === "Sous-offre";
+                });
+
+                const sousOffreData = extractAndOptimizeData(sousOffreRows);
+                populateOptimizedTable(sousOffreData);
+
+                // Afficher un message et faire défiler vers le tableau optimisé
+                const optimizedTableBody = document.getElementById('optimizedTable').querySelector("tbody");
+                if (optimizedTableBody.rows.length === 0) {
+                    alert("Aucune ligne avec 'Sous-offre' n'a été trouvée.");
+                } else {
+                    alert(`Nombre de lignes optimisées : ${optimizedTableBody.rows.length}`);
+                    showOptimizedResult(); // Affiche le tableau optimisé
+                    document.getElementById('optimizedResult').scrollIntoView({ behavior: 'smooth' }); // Faire défiler
+                }
+            }
+
+            // Fonction pour extraire et optimiser les données
+            function extractAndOptimizeData(diagnosticRows) {
+                const peakCapacity = parseInt(document.getElementById('peakCapacity').value, 10);
+                const offPeakCapacity = parseInt(document.getElementById('offPeakCapacity').value, 10);
+
+                const timeRanges = {
+                    peak: [['07:00', '09:00'], ['16:00', '18:30']],
+                    offPeak: [['00:00', '07:00'], ['09:00', '16:00'], ['18:30', '23:59']]
+                };
+
+                // Fréquences disponibles (en hh:mm:ss)
+                const peakFrequencies = [
+                    "00:01:37", "00:01:40", "00:01:44", "00:01:49", "00:01:54", "00:01:58", "00:02:05",
+                    "00:02:09", "00:02:15", "00:02:20", "00:02:22", "00:02:25", "00:02:32", "00:02:40", "00:02:50", "00:03:00"
+                ];
+                const offPeakFrequencies = [
+                    "00:02:05", "00:02:09", "00:02:15","00:02:20", "00:02:22", "00:02:25", "00:02:32", "00:02:40", "00:02:50", "00:03:00", "00:03:12",
+                    "00:03:26", "00:03:42", "00:04:00", "00:04:15", "00:04:42", "00:05:20", "00:05:55",
+                    "00:06:50", "00:07:50"
+                ];
+
+                function isInRange(time, ranges) {
+                    for (let range of ranges) {
+                        if (time >= range[0] && time <= range[1]) {
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+
+                function findClosestFrequencyForSurOffre(targetTime, availableFrequencies, targetLoad, capacity, existingFrequencyMinutes, maxVoyageurs) {
+                    let closestFrequency = null;
+                    let minDifference = Infinity;
+
+                    availableFrequencies.forEach(frequency => {
+                        const frequencyInMinutes = convertTimeToMinutes(frequency);
+                        const newLoad = (maxVoyageurs * frequencyInMinutes) / existingFrequencyMinutes;
+
+                        // Check if the new load is less than or equal to the capacity (Sur-offre)
+                        if (newLoad <= capacity) {
+                            const targetInMinutes = convertTimeToMinutes(targetTime);
+                            const difference = Math.abs(frequencyInMinutes - targetInMinutes);
+
+                            if (difference < minDifference) {
+                                minDifference = difference;
+                                closestFrequency = frequency;
+                            }
+                        }
+                    });
+
+                 if (!closestFrequency) {
+                     return convertMinutesToHHMMSS(Math.min(...availableFrequencies.map(convertTimeToMinutes))) || 'N/A'
+                  }
+
+                    return closestFrequency;
+                }
+
+
+
+                return diagnosticRows.map(row => {
+                    const cells = row.getElementsByTagName('td');
+                    if (cells.length < 6) return null; // Ignorer les lignes invalides
+
+                    const direction = row.dataset.direction;
+                    const trancheHoraire = cells[0].textContent.trim();
+                    const tranchesOffre = cells[1].textContent.trim();
+                    const maxVoyageurs = parseInt(cells[2].textContent.trim(), 10); // Parse maxVoyageurs as integer
+                    const frequenceExistanteStr = cells[4].textContent.trim();
+
+                    if (!frequenceExistanteStr || frequenceExistanteStr === "0") {
+                        return {
+                            direction,
+                            trancheHoraire,
+                            tranchesOffre,
+                            frequenceOptimisee: null,
+                            frequenceExistante: frequenceExistanteStr,
+                            chargeOptimisee: null,
+                            chargeExistante: maxVoyageurs,
+                            diagnostic: 'N/A'
+                        };
+                    }
+
+                    const frequenceExistanteMinutes = convertTimeToMinutes(frequenceExistanteStr);
+                    const diagnosticTime = trancheHoraire.substring(0, 5);
+                    const capaciteMax = isInRange(diagnosticTime, timeRanges.peak) ? peakCapacity : offPeakCapacity;
+
+                     // Determine available frequencies based on peak or off-peak hours
+                     const availableFrequencies = isInRange(diagnosticTime, timeRanges.peak) ? peakFrequencies : offPeakFrequencies;
+
+                     // Calculate target frequency for Sur-offre
+                    let frequenceOptimiseeInMinutes = Math.max(1.6167, Math.min((frequenceExistanteMinutes * capaciteMax) / maxVoyageurs, 7.8333));
+                    let frequenceOptimiseeFormatted = convertMinutesToHHMMSS(frequenceOptimiseeInMinutes);
+
+
+                     frequenceOptimiseeFormatted = findClosestFrequencyForSurOffre(frequenceOptimiseeFormatted, availableFrequencies, capaciteMax, capaciteMax, frequenceExistanteMinutes, maxVoyageurs);
+
+                   const chargeOptimiseeMinutes = convertTimeToMinutes(frequenceOptimiseeFormatted);
+                    const chargeOptimisee = (maxVoyageurs * chargeOptimiseeMinutes) / frequenceExistanteMinutes;
+                  const diagnostic = chargeOptimisee <= capaciteMax ? 'Sur-offre' : 'Sous-offre';
+
+
+
+
+                    return {
+                        direction,
+                        trancheHoraire,
+                        tranchesOffre,
+                        frequenceOptimisee: frequenceOptimiseeFormatted || 'N/A',
+                        frequenceExistante: frequenceExistanteStr,
+                        chargeOptimisee: chargeOptimisee !== null ? chargeOptimisee.toFixed(0) : 'N/A',
+                        chargeExistante: maxVoyageurs,
+                        diagnostic: diagnostic
+                    };
+                }).filter(Boolean); // Supprimer les entrées null
+            }
+
+            // Conversion du temps au format hh:mm:ss en minutes (pour simplifier les calculs)
+            function convertTimeToMinutes(timeStr) {
+                if (!timeStr) return null;
+                const [hours, minutes, seconds] = timeStr.split(':').map(num => parseInt(num, 10));
+                return hours * 60 + minutes + seconds / 60;
+            }
+
+            // Conversion de minutes en hh:mm:ss
+            function convertMinutesToHHMMSS(minutes) {
+                const totalSeconds = Math.floor(minutes * 60); // Convertit les minutes en secondes
+                const hours = Math.floor(totalSeconds / 3600); // Heures
+                const remainingSeconds = totalSeconds % 3600; // Secondes restantes après les heures
+                const mins = Math.floor(remainingSeconds / 60); // Minutes restantes
+                const secs = remainingSeconds % 60; // Secondes restantes
+
+                return [
+                    hours.toString().padStart(2, '0'), // Heures formatées
+                    mins.toString().padStart(2, '0'), // Minutes formatées
+                    secs.toString().padStart(2, '0')  // Secondes formatées
+                ].join(':');
+            }
+
+            // Fonction pour peupler le tableau optimisé
+            function populateOptimizedTable(data) {
+                const optimizedTableBody = document.getElementById('optimizedTable').querySelector("tbody");
+                optimizedTableBody.innerHTML = "";
+
+                data.forEach(item => {
+                    const row = optimizedTableBody.insertRow();
+
+                    // Colonne "Direction" ajoutée avant Tranche Horaire
+                    const directionCell = row.insertCell(0);
+                    directionCell.innerText = item.direction;
+
+                    const trancheCell = row.insertCell(1);
+                    trancheCell.innerText = item.trancheHoraire;
+
+                    const offreCell = row.insertCell(2);
+                    offreCell.innerText = item.tranchesOffre;
+
+                    const freqOptiCell = row.insertCell(3);
+                    freqOptiCell.innerText = item.frequenceOptimisee !== null ? item.frequenceOptimisee : "null";
+                    freqOptiCell.classList.add('freq-opti');
+
+                    const freqExistanteCell = row.insertCell(4);
+                    freqExistanteCell.innerText = item.frequenceExistante;
+                    freqExistanteCell.classList.add('freq-exist');
+
+                    const chargeOptimiseeCell = row.insertCell(5);
+                    chargeOptimiseeCell.innerText = item.chargeOptimisee;
+                    chargeOptimiseeCell.classList.add('charge-opti');
+
+                    const chargeExistanteCell = row.insertCell(6);
+                    chargeExistanteCell.innerText = item.chargeExistante;
+                    chargeExistanteCell.classList.add('charge-exist');
+
+                    const diagnosticCell = row.insertCell(7);
+                    diagnosticCell.innerText = item.diagnostic;
+                });
+            }
+
+            // Fonction pour obtenir le diagnostic
+            function getDiagnosis(maxVoyageurs, tranche) {
+                const peakCapacity = parseInt(document.getElementById('peakCapacity').value, 10);
+                const offPeakCapacity = parseInt(document.getElementById('offPeakCapacity').value, 10);
+                const timeRanges = {
+                    peak: [['07:00', '09:00'], ['16:00', '18:30']],
+                    offPeak: [['00:00', '07:00'], ['09:00', '16:00'], ['18:30', '23:59']]
+                };
+
+                function isInRange(time, ranges) {
+                    for (let range of ranges) {
+                        if (time >= range[0] && time <= range[1]) {
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+                const diagnosticTime = tranche.substring(0, 5);
+
+                if (isInRange(diagnosticTime, timeRanges.peak)) {
+                    return maxVoyageurs > peakCapacity ? 'Sous-offre' : 'Sur-offre';
+                } else {
+                    return maxVoyageurs > offPeakCapacity ? 'Sous-offre' : 'Sur-offre';
+                }
+            }
+
+            // Fonction pour obtenir la classe CSS pour le diagnostic
+            function getDiagnosticClass(diagnosis) {
+                return diagnosis === 'Sur-offre' ? 'diagnostic-suroffre' : 'diagnostic-sousoffre';
+            }
+
+            // Fonction pour afficher les erreurs
+            function displayErrorMessage(message) {
+                const errorMessages = document.getElementById('errorMessages');
+                errorMessages.innerHTML = `<li>${message}</li>`;
+                hideResult();
+            }
+
+            // Fonctions pour gérer l'affichage des résultats
+            function showResult() {
+                document.getElementById('result').classList.remove('hidden');
+                document.getElementById('optimizedResult').classList.add('hidden');
+            }
+
+            function showOptimizedResult() {
+                document.getElementById('optimizedResult').classList.remove('hidden');
+                document.getElementById('result').classList.add('hidden');
+            }
+
+            function hideResult() {
+                document.getElementById('result').classList.add('hidden');
+                document.getElementById('optimizedResult').classList.add('hidden');
+            }
+
+            // Fonction pour l'upload de fichier
+            async function uploadFile(url, formData) {
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Erreur HTTP ! Statut : ${response.status}`);
+                    }
+
+                    return await response.json();
+                } catch (error) {
+                    throw error;
+                }
+            }
+
+            // Fonction pour l'upload des fichiers
+            async function uploadFiles(url, formData) {
+                const peakCapacity = parseInt(document.getElementById('peakCapacity').value, 10);
+                const offPeakCapacity = parseInt(document.getElementById('offPeakCapacity').value, 10);
+
+                if (isNaN(peakCapacity) || isNaN(offPeakCapacity)) {
+                    throw new Error("Veuillez saisir des capacités valides pour les heures de pointe et heures creuses !");
+                }
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Erreur HTTP ! Statut : ${response.status}`);
+                    }
+
+                    return await response.json();
+                } catch (error) {
+                    throw error;
+                }
+            }
+        });
+
+        // Fonction pour exporter le tableau vers Excel
+        function exportTableToExcel(tableId, filename = '') {
+            const table = document.getElementById(tableId);
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.table_to_sheet(table);
+            XLSX.utils.book_append_sheet(wb, ws, "Results");
+            XLSX.writeFile(wb, filename + ".xlsx");
+        }
+
+    </script>
+</body>
+</html>

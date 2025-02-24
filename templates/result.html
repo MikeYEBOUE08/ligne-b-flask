@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnostic et Optimisation</title>
+    <style>
+        /* Style du tableau de diagnostic */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table, th, td {
+            border: 1px solid #000;
+            text-align: center;
+            padding: 8px;
+        }
+
+        th {
+            background-color: #f4f4f4;
+        }
+
+        /* Style pour les boutons */
+        .action-button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .action-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Diagnostic et Optimisation</h1>
+
+    <!-- Tableau principal pour afficher les diagnostics -->
+    <table id="diagnosticTable">
+        <thead>
+            <tr>
+                <th>Tranche Horaire</th>
+                <th>Tranches Offres</th>
+                <th>Max Voyageurs</th>
+                <th>Nb Rames Existantes</th>
+                <th>Fréquence Existante</th>
+                <th>Diagnostic</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Les données des diagnostics seront ajoutées ici dynamiquement -->
+        </tbody>
+    </table>
+
+    <!-- Bouton Optimizer ajouté -->
+    <button id="optimizerButton" class="action-button">Optimizer</button>
+
+    <script>
+        // Exemple de données injectées dans le tableau Diagnostic
+        const diagnostics = [
+            {
+                tranche: "07:00 - 07:30",
+                tranches_offre: "Pointe",
+                max_voyageurs: 150,
+                nb_rames: 3,
+                frequence: 300,
+                diagnostic: "Sous-offre"
+            },
+            {
+                tranche: "07:30 - 08:00",
+                tranches_offre: "Creuse",
+                max_voyageurs: 80,
+                nb_rames: 2,
+                frequence: 400,
+                diagnostic: "Sur-offre"
+            },
+            {
+                tranche: "08:00 - 08:30",
+                tranches_offre: "Pointe",
+                max_voyageurs: 200,
+                nb_rames: 4,
+                frequence: 270,
+                diagnostic: "Sous-offre"
+            }
+        ];
+
+        /**
+         * Fonction pour afficher le tableau Diagnostic avec les données
+         */
+        function displayDiagnostics() {
+            const diagnosticTable = document.getElementById("diagnosticTable").querySelector("tbody");
+
+            diagnostics.forEach(diagnostic => {
+                const row = diagnosticTable.insertRow();
+                row.insertCell(0).innerText = diagnostic.tranche;
+                row.insertCell(1).innerText = diagnostic.tranches_offre;
+                row.insertCell(2).innerText = diagnostic.max_voyageurs;
+                row.insertCell(3).innerText = diagnostic.nb_rames;
+                row.insertCell(4).innerText = diagnostic.frequence;
+                row.insertCell(5).innerText = diagnostic.diagnostic;
+            });
+        }
+
+        // Affiche les diagnostics lors du chargement de la page
+        displayDiagnostics();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnostic des Fichiers Excel - Keolis</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7fa;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            text-align: center;
+            color: #00539F;
+            padding: 20px 0;
+            margin: 0;
+        }
+
+        form {
+            max-width: 700px;
+            margin: 30px auto;
+            padding: 30px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        form div {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        input[type="file"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            font-size: 14px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            background-color: #0077C8;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s ease;
+        }
+
+        button:hover {
+            background-color: #00539F;
+            transform: scale(1.05);
+        }
+
+        button:focus {
+            outline: none;
+        }
+
+        #errorMessages {
+            color: red;
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 5px;
+            padding: 10px;
+            margin-top: 15px;
+        }
+
+        #result {
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #0077C8;
+            color: white;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #f4f7fa;
+        }
+
+        .diagnostic-suroffre {
+            background-color: #d4edda; /* Light green */
+            color: #155724;
+        }
+
+        .diagnostic-sousoffre {
+            background-color: #f8d7da; /* Light red/pink */
+            color: #721c24;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            form {
+                padding: 15px;
+            }
+
+            button {
+                padding: 14px;
+                font-size: 14px;
+            }
+
+            table {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Diagnostic des Fichiers Excel - Keolis</h1>
+    <form id="uploadForm" method="POST" enctype="multipart/form-data">
+        <div>
+            <label for="firstFile">Upload Premier Fichier Excel :</label>
+            <input type="file" name="firstFile" id="firstFile" required>
+        </div>
+
+        <div id="selectSheet" class="hidden">
+            <label for="sheet">Choisissez un Onglet :</label>
+            <select name="sheet" id="sheet"></select>
+        </div>
+
+        <div id="secondFileDiv" class="hidden">
+            <label for="secondFile">Upload Fichier Excel Sens Aller :</label>
+            <input type="file" name="secondFile" id="secondFile">
+        </div>
+
+        <div id="thirdFileDiv" class="hidden">
+            <label for="thirdFile">Upload Fichier Excel Sens Retour :</label>
+            <input type="file" name="thirdFile" id="thirdFile">
+        </div>
+
+        <div>
+            <label for="peakCapacity">Capacité aux Heures de Pointe :</label>
+            <input type="number" id="peakCapacity" value="168">
+        </div>
+
+        <div>
+            <label for="offPeakCapacity">Capacité aux Heures Creuses :</label>
+            <input type="number" id="offPeakCapacity" value="110">
+        </div>
+
+        <button type="button" id="diagnosticButton">Obtenir le Diagnostic</button>
+    </form>
+
+    <ul id="errorMessages"></ul>
+
+    <div id="result">
+        <h2>Résultats du Diagnostic</h2>
+        <table id="diagnosticTable"></table>
+    </div>
+
+    <script>
+        document.getElementById('firstFile').addEventListener('change', function() {
+            const formData = new FormData();
+            formData.append('firstFile', this.files[0]);
+
+            fetch('/upload_first_file', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                const sheetSelect = document.getElementById('sheet');
+                sheetSelect.innerHTML = '';
+                data.sheet_names.forEach(sheet => {
+                    const option = document.createElement('option');
+                    option.value = sheet;
+                    option.textContent = sheet;
+                    sheetSelect.add(option);
+                });
+                document.getElementById('selectSheet').classList.remove('hidden');
+                document.getElementById('secondFileDiv').classList.remove('hidden');
+                document.getElementById('thirdFileDiv').classList.remove('hidden');
+            })
+            .catch(error => console.error('Erreur:', error));
+        });
+
+        document.getElementById('diagnosticButton').addEventListener('click', function() {
+            const form = document.getElementById('uploadForm');
+            const formData = new FormData(form);
+
+            const peakCapacity = parseInt(document.getElementById('peakCapacity').value, 10);
+            const offPeakCapacity = parseInt(document.getElementById('offPeakCapacity').value, 10);
+
+            fetch('/process_files', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    const errorMessages = document.getElementById('errorMessages');
+                    errorMessages.innerHTML = `<li>${data.error}</li>`;
+                    document.getElementById('result').style.display = 'none';
+                } else {
+                    const table = document.getElementById('diagnosticTable');
+                    table.innerHTML = '';
+
+                    const tbody = table.createTBody();
+
+                    // Function to check if time is within the range
+                    function isInRange(time, ranges) {
+                        return ranges.some(range => time >= range[0] && time <= range[1]);
+                    }
+
+                    function getDiagnosis(maxVoyageurs, time) {
+                        const timeRanges = {
+                            peak: [['07:00', '09:00'], ['16:00', '18:30']],
+                            offPeak: [['00:00', '07:00'], ['09:00', '16:00'], ['18:30', '23:59']]
+                        };
+                        return isInRange(time, timeRanges.peak) ?
+                            (maxVoyageurs > peakCapacity ? 'Sous-offre' : 'Sur-offre') :
+                            (maxVoyageurs > offPeakCapacity ? 'Sous-offre' : 'Sur-offre');
+                    }
+
+                    function getDiagnosticClass(diagnosis) {
+                        return diagnosis === 'Sur-offre' ? 'diagnostic-suroffre' : 'diagnostic-sousoffre';
+                    }
+
+                    function findOptimalFrequence(maxVoyageurs, capacity, frequences) {
+                        // Start with no optimal frequency
+                        let optimalFrequence = null;
+
+                        // Filter out frequencies that are higher than needed, and store the smallest one
+                        let validFrequencies = frequences.filter(frequence => (maxVoyageurs / frequence) <= capacity);
+
+                        if (validFrequencies.length > 0) {
+                            optimalFrequence = Math.min(...validFrequencies); // Smallest frequency that satisfies condition
+                        }
+
+                        return optimalFrequence;
+                    }
+
+
+                    // Sens Aller Diagnostics
+                    if (data.diagnostic_sens_aller) {
+                        const allerTitleRow = tbody.insertRow();
+                        const allerTitleCell = allerTitleRow.insertCell(0);
+                        allerTitleCell.colSpan = 7;
+                        allerTitleCell.innerText = 'Diagnostics Sens Aller';
+                        allerTitleCell.style.fontWeight = 'bold';
+
+                        const allerHeader = tbody.insertRow();
+                        ['Tranche Horaire', 'Tranches Offre', 'Max Voyageurs', 'Nb Rames Existante', 'Fréquence Existante', 'Diagnostic', 'Fréquence Optimale'].forEach(text => {
+                            const th = document.createElement('th');
+                            th.innerText = text;
+                            allerHeader.appendChild(th);
+                        });
+
+                        data.diagnostic_sens_aller.forEach(diagnostic => {
+                            const row = tbody.insertRow();
+                            const diagnosticTime = diagnostic.tranche.substring(0, 5);
+                            const frequences = data.frequences_disponibles || []; // Liste des fréquences disponibles
+
+                            ['tranche', 'tranches_offre', 'max_voyageurs', 'nb_rames', 'frequence'].forEach((key, index) => {
+                                const cell = row.insertCell(index);
+                                cell.innerText = diagnostic[key] || 'N/A';
+                            });
+
+                            const diagnosis = getDiagnosis(diagnostic.max_voyageurs, diagnosticTime);
+                            const diagnosisCell = row.insertCell(5);
+                            diagnosisCell.innerText = diagnosis;
+                            diagnosisCell.className = getDiagnosticClass(diagnosis);
+
+                             // Determine the appropriate capacity based on the time
+                             const capacity = isInRange(diagnosticTime, [['07:00', '09:00'], ['16:00', '18:30']]) ? peakCapacity : offPeakCapacity;
+
+                            const optimalFrequence = findOptimalFrequence(diagnostic.max_voyageurs, capacity, frequences);
+
+                            const optimalFrequenceCell = row.insertCell(6);
+                            optimalFrequenceCell.innerText = optimalFrequence !== null ? optimalFrequence : 'N/A';
+                        });
+                    }
+
+                    // Sens Retour Diagnostics
+                    if (data.diagnostic_sens_retour) {
+                        const retourTitleRow = tbody.insertRow();
+                        const retourTitleCell = retourTitleRow.insertCell(0);
+                        retourTitleCell.colSpan = 7;
+                        retourTitleCell.innerText = 'Diagnostics Sens Retour';
+                        retourTitleCell.style.fontWeight = 'bold';
+
+                        const retourHeader = tbody.insertRow();
+                        ['Tranche Horaire', 'Tranches Offre', 'Max Voyageurs', 'Nb Rames Existante', 'Fréquence Existante', 'Diagnostic', 'Fréquence Optimale'].forEach(text => {
+                            const th = document.createElement('th');
+                            th.innerText = text;
+                            retourHeader.appendChild(th);
+                        });
+
+                        data.diagnostic_sens_retour.forEach(diagnostic => {
+                            const row = tbody.insertRow();
+                            const diagnosticTime = diagnostic.tranche.substring(0, 5);
+                            const frequences = data.frequences_disponibles || []; // Liste des fréquences disponibles
+
+                            ['tranche', 'tranches_offre', 'max_voyageurs', 'nb_rames', 'frequence'].forEach((key, index) => {
+                                const cell = row.insertCell(index);
+                                cell.innerText = diagnostic[key] || 'N/A';
+                            });
+
+                            const diagnosis = getDiagnosis(diagnostic.max_voyageurs, diagnosticTime);
+                            const diagnosisCell = row.insertCell(5);
+                            diagnosisCell.innerText = diagnosis;
+                            diagnosisCell.className = getDiagnosticClass(diagnosis);
+
+                            // Determine the appropriate capacity based on the time
+                            const capacity = isInRange(diagnosticTime, [['07:00', '09:00'], ['16:00', '18:30']]) ? peakCapacity : offPeakCapacity;
+
+                            const optimalFrequence = findOptimalFrequence(diagnostic.max_voyageurs, capacity, frequences);
+
+                            const optimalFrequenceCell = row.insertCell(6);
+                            optimalFrequenceCell.innerText = optimalFrequence !== null ? optimalFrequence : 'N/A';
+                        });
+                    }
+
+                    document.getElementById('result').style.display = 'block';
+                }
+            })
+            .catch(error => console.error('Erreur:', error));
+        });
+    </script>
+</body>
+</html>
