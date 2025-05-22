@@ -1,10 +1,7 @@
-from flask import Flask, render_template, request, jsonify, send_file
+from flask import Flask, render_template, request, jsonify
 import pandas as pd
 from io import BytesIO
 import datetime
-import matplotlib.pyplot as plt
-import plotly.express as px
-import plotly.io as pio
 #Indexnew ou jsdefff
 
 app = Flask(__name__)
@@ -98,22 +95,6 @@ def process_files():
         return jsonify(error=f'Erreur lors du traitement des fichiers : {str(e)}')
 
 
-
-@app.route('/generate_chart', methods=['POST'])
-def generate_chart():
-    try:
-        # Récupérer les données du tableau d'optimisation
-        data = request.json
-
-        # Renvoyer les données brutes
-        return jsonify(data=data)
-    except Exception as e:
-        return jsonify(error=f'Erreur lors de la génération du graphique : {str(e)}')
-
-
-
-
-
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(debug=True)
 

@@ -5,364 +5,712 @@
     <title>Diagnostic & Optimisation</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <!-- Importer la police Poppins depuis Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- Ou importer la police Montserrat -->
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
     <style>
-        /* styles.css */
-        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+       /* styles.css */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+
+:root {
+    --couleur-primaire: #66a5ad; /* Bleu-vert doux */
+    --couleur-secondaire: #86acaa; /* Vert d'eau */
+    --couleur-accent: #f4a261; /* Orange chaud */
+    --couleur-fond: #f8f9fa; /* Gris très clair */
+    --couleur-texte: #495057; /* Gris foncé */
+    --police-famille: 'Roboto', Arial, sans-serif;
+}
+
+body {
+    font-family: var(--police-famille);
+    background-color: var(--couleur-fond);
+    color: var(--couleur-texte);
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    transition: background-color 0.3s ease;
+}
+
+h1 {
+    text-align: center;
+    color: var(--couleur-primaire);
+    margin-top: 2rem;
+    animation: fadeInDown 0.8s ease-out;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+form {
+    max-width: 700px;
+    margin: 30px auto;
+    padding: 30px;
+    background-color: #fff;
+    border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    animation: fadeInUp 0.8s ease-out;
+}
+
+form:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
+}
+
+form div {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: #555;
+    transition: color 0.3s ease;
+}
+
+input[type="file"],
+input[type="number"],
+select {
+    width: calc(100% - 16px);
+    padding: 12px;
+    margin-top: 8px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+input[type="file"]:focus,
+input[type="number"]:focus,
+select:focus {
+    outline: none;
+    border-color: var(--couleur-primaire);
+    box-shadow: 0 0 5px rgba(102, 165, 173, 0.5); /* Couleur primaire en rgba */
+}
+
+button {
+    width: 100%;
+    padding: 14px;
+    font-size: 18px;
+    background: linear-gradient(to right, var(--couleur-primaire), var(--couleur-secondaire));
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    font-weight: 500;
+}
+
+button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+#errorMessages {
+    color: #dc3545;
+    list-style-type: none;
+    padding: 0;
+    margin-top: 10px;
+    animation: shake 0.5s ease-in-out;
+}
+
+#result, #optimizedResult {
+    max-width: 100%; /* Ajustez la largeur maximale */
+    margin: 40px auto;
+    padding: 30px;
+    background-color: #fff;
+    border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    animation: fadeIn 0.8s ease-out;
+    overflow-x: auto; /* Ajoute un défilement horizontal si nécessaire */
+}
+
+#result h2, #optimizedResult h2 {
+    color: var(--couleur-primaire);
+    text-align: center;
+    margin-bottom: 25px;
+    font-weight: 600;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 30px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    border-radius: 10px;
+    overflow: hidden;
+    min-width: 800px; /* Largeur minimale pour éviter le débordement */
+}
+
+th, td {
+    padding: 12px; /* Réduire le padding pour gagner de l'espace */
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+th {
+    background-color: var(--couleur-primaire);
+    color: white;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+tbody tr:hover {
+    background-color: #f2f2f2;
+    transition: background-color 0.2s ease;
+}
+
+.diagnostic-suroffre {
+    background-color: #d4edda;
+    color: #155724;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+.diagnostic-sousoffre {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+.header-actions {
+    display: flex;
+    justify-content: flex-end;
+    padding: 20px;
+    background-color: #f8f9fa;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+table#optimizedTable {
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    overflow: hidden;
+    font-size: 15px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    background-color: #f8f9fa;
+    animation: fadeIn 0.8s ease-out;
+    min-width: 1000px; /* Largeur minimale pour éviter le débordement */
+}
+
+table#optimizedTable thead {
+    background-color: var(--couleur-primaire);
+    color: white;
+    text-transform: uppercase;
+}
+
+table#optimizedTable th {
+    padding: 12px; /* Réduire le padding pour gagner de l'espace */
+    text-align: left;
+    font-weight: 500;
+}
+
+table#optimizedTable tbody tr:nth-child(odd) {
+    background-color: #e9ecef;
+}
+
+table#optimizedTable tbody tr:nth-child(even) {
+    background-color: white;
+}
+
+table#optimizedTable tbody tr:hover {
+    background-color: #f1f3f5;
+    transition: background-color 0.2s ease;
+}
+
+table#optimizedTable td {
+    padding: 12px; /* Réduire le padding pour gagner de l'espace */
+    border-bottom: 1px solid #ddd;
+}
+
+table#optimizedTable td:nth-child(5),
+table#optimizedTable td:nth-child(6),
+table#optimizedTable td:nth-child(7),
+table#optimizedTable td:nth-child(8) {
+    text-align: center;
+}
+
+table#optimizedTable td.freq-opti {
+    font-weight: 600;
+}
+
+table#optimizedTable td.charge-opti {
+    font-weight: 600;
+}
+
+table#optimizedTable td:empty::before {
+    content: "—";
+    font-style: italic;
+    color: #888;
+}
+
+.indicators {
+    display: flex;
+    justify-content: space-between;
+    padding: 30px;
+    margin-bottom: 30px;
+}
+
+.indicator-group {
+    width: 45%;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.indicator {
+    background-color: #fff;
+    border: 2px solid #ddd;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    text-align: center;
+    color: #333;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.indicator:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+}
+
+.indicator h3 {
+    font-size: 18px;
+    margin: 0;
+    color: var(--couleur-primaire);
+    font-weight: 600;
+}
+
+.indicator p {
+    font-size: 24px;
+    margin: 12px 0 0;
+    font-weight: bold;
+    color: #333;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes shake {
+    0% {
+        transform: translateX(0);
+    }
+    25% {
+        transform: translateX(-5px);
+    }
+    50% {
+        transform: translateX(5px);
+    }
+    75% {
+        transform: translateX(-5px);
+    }
+    100% {
+        transform: translateX(0);
+    }
+}
+
+.export-button {
+    padding: 10px 15px;
+    font-size: 14px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background-color 0.2s ease;
+}
+
+.export-button:hover {
+    background-color: #218838;
+}
+
+th input {
+    width: 90%;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+/* Style pour le bouton Optimisation */
+#optimizerButton {
+    background: linear-gradient(to right, var(--couleur-primaire), var(--couleur-secondaire));
+    color: white; /* Texte en blanc */
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    font-weight: 500;
+    margin-left: 10px; /* Ajoute une marge à gauche pour l'espacement */
+}
+
+#optimizerButton:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+#optimizerButton:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Style pour le bouton Diagnostic */
+#diagnosticButton {
+    background: linear-gradient(to right, var(--couleur-primaire), var(--couleur-secondaire));
+    color: white; /* Texte en blanc */
+    border: none;
+    border-radius: 8px;
+    padding: 14px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    font-weight: 500;
+}
+
+#diagnosticButton:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+#diagnosticButton:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Style pour le conteneur des boutons */
+.header-actions {
+    display: flex;
+    justify-content: flex-end;
+    padding: 20px;
+    background-color: var(--couleur-fond); /* Utilise la couleur de fond du thème */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.diagnostic-ok {
+    background-color: #d1ecf1;
+    color: #0c5460;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+/* Style pour la barre de navigation */
+nav {
+    background-color: #ffffff; /* Fond blanc */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Ombre légère */
+    padding: 10px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+nav ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    gap: 15px; /* Espace entre les boutons */
+}
+
+nav ul li {
+    margin: 0;
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: var(--couleur-primaire); /* Utiliser la couleur primaire */
+    background-color: transparent;
+    padding: 10px 20px;
+    border-radius: 25px; /* Bords arrondis */
+    font-size: 16px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: 2px solid var(--couleur-primaire); /* Bordure de la couleur primaire */
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Effet de fond au survol */
+nav ul li a::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to right, var(--couleur-primaire), var(--couleur-secondaire));
+    transition: left 0.3s ease;
+    z-index: -1;
+}
+
+/* Effet de texte au survol */
+nav ul li a:hover {
+    color: white; /* Texte blanc au survol */
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Animation du fond au survol */
+nav ul li a:hover::before {
+    left: 0;
+}
+
+/* Effet au clic */
+nav ul li a:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+/* Style pour le bouton actif */
+nav ul li a.active {
+    background: linear-gradient(to right, var(--couleur-primaire), var(--couleur-secondaire));
+    color: white;
+    border-color: transparent;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Ajouter une icône aux boutons (optionnel) */
+nav ul li a i {
+    margin-right: 8px; /* Espace entre l'icône et le texte */
+}
+
+
+
+    #filterModal {
+        background: white;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        padding: 20px;
+        width: 300px;
+        max-height: 80vh; /* Limite la hauteur à 80% de la hauteur de l'écran */
+        overflow-y: auto; /* Ajoute une barre de défilement si nécessaire */
+        text-align: center;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 1000;
+    }
+
+    #filterModal h3 {
+        margin-top: 0;
+    }
+
+    #filterModal label {
+        display: block;
+        margin: 10px 0;
+    }
+
+    #filterModal button {
+        margin: 10px 5px;
+        padding: 5px 10px;
+        border: none;
+        border-radius: 4px;
+        background-color: #66a5ad;
+        color: white;
+        cursor: pointer;
+    }
+
+    #filterModal button:hover {
+        background-color: #5599a1;
+    }
+
+    #filterOptions {
+        max-height: 60vh; /* Limite la hauteur des options de filtre */
+        overflow-y: auto; /* Ajoute une barre de défilement si nécessaire */
+        margin-bottom: 20px; /* Espace avant les boutons */
+    }
+
+#additionalCharts {
+    margin: 40px auto;
+    max-width: 1200px;
+}
+
+#additionalCharts h2 {
+    text-align: center;
+    color: var(--couleur-primaire);
+    margin-bottom: 20px;
+}
+
+#additionalCharts h3 {
+    text-align: center;
+    color: var(--couleur-texte);
+    margin-bottom: 10px;
+}
+
+canvas {
+    max-width: 100%;
+    height: auto;
+}
 
         :root {
-            --couleur-primaire: #66a5ad; /* Bleu-vert doux */
-            --couleur-secondaire: #86acaa; /* Vert d'eau */
-            --couleur-accent: #f4a261; /* Orange chaud */
-            --couleur-fond: #f8f9fa; /* Gris très clair */
-            --couleur-texte: #495057; /* Gris foncé */
-            --police-famille: 'Roboto', Arial, sans-serif;
-        }
+    --police-famille: 'Poppins', sans-serif; /* Utiliser Poppins comme police principale */
+    /* Ou utiliser Montserrat : --police-famille: 'Montserrat', sans-serif; */
+    --couleur-primaire: #66a5ad; /* Bleu-vert doux */
+    --couleur-secondaire: #86acaa; /* Vert d'eau */
+    --couleur-accent: #f4a261; /* Orange chaud */
+    --couleur-fond: #f8f9fa; /* Gris très clair */
+    --couleur-texte: #495057; /* Gris foncé */
+}
 
-        body {
-            font-family: var(--police-famille);
-            background-color: var(--couleur-fond);
-            color: var(--couleur-texte);
-            margin: 0;
-            padding: 0;
-            overflow-x: hidden;
-            transition: background-color 0.3s ease;
-        }
+body {
+    font-family: var(--police-famille); /* Appliquer la police à tout le corps */
+    background-color: var(--couleur-fond);
+    color: var(--couleur-texte);
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    transition: background-color 0.3s ease;
+}
 
-        h1 {
-            text-align: center;
-            color: var(--couleur-primaire);
-            margin-top: 2rem;
-            animation: fadeInDown 0.8s ease-out;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-        }
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--police-famille); /* Appliquer la police aux titres */
+    font-weight: 600; /* Poids de police pour les titres */
+}
 
-        form {
-            max-width: 700px;
-            margin: 30px auto;
-            padding: 30px;
-            background-color: #fff;
-            border-radius: 15px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            animation: fadeInUp 0.8s ease-out;
-        }
+button, input, select, textarea {
+    font-family: var(--police-famille); /* Appliquer la police aux éléments de formulaire */
+}
 
-        form:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
-        }
+nav ul li a {
+    font-family: var(--police-famille); /* Appliquer la police aux boutons de navigation */
+    font-weight: 500; /* Poids de police pour les boutons */
+}
+/* Style pour le fond défilant */
+.background-text {
+    position: fixed; /* Fixer le fond */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1; /* Placer derrière le contenu */
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    background-color: var(--couleur-fond); /* Couleur de fond */
+}
 
-        form div {
-            margin-bottom: 20px;
-        }
+/* Style pour chaque ligne de texte */
+.text-scroll {
+    font-family: 'Poppins', sans-serif; /* Utiliser la police Poppins */
+    font-size: 4rem; /* Taille du texte */
+    font-weight: 700; /* Poids de la police */
+    color: rgba(102, 165, 173, 0.1); /* Couleur du texte (très claire) */
+    white-space: nowrap; /* Empêcher le texte de se casser */
+    animation: scrollText 20s linear infinite; /* Animation de défilement */
+}
 
-        label {
-            display: block;
-            font-weight: 500;
-            margin-bottom: 8px;
-            color: #555;
-            transition: color 0.3s ease;
-        }
+/* Animation de défilement */
+@keyframes scrollText {
+    0% {
+        transform: translateX(-100%); /* Commencer à gauche */
+    }
+    100% {
+        transform: translateX(100%); /* Finir à droite */
+    }
+}
+        #loading {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
 
-        input[type="file"],
-        input[type="number"],
-        select {
-            width: calc(100% - 16px);
-            padding: 12px;
-            margin-top: 8px;
-            font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
-        }
+.loader {
+    border: 8px solid #f3f3f3;
+    border-top: 8px solid #66a5ad;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 1s linear infinite;
+}
 
-        input[type="file"]:focus,
-        input[type="number"]:focus,
-        select:focus {
-            outline: none;
-            border-color: var(--couleur-primaire);
-            box-shadow: 0 0 5px rgba(102, 165, 173, 0.5); /* Couleur primaire en rgba */
-        }
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
 
-        button {
-            width: 100%;
-            padding: 14px;
-            font-size: 18px;
-            background: linear-gradient(to right, var(--couleur-primaire), var(--couleur-secondaire));
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            font-weight: 500;
-        }
-
-        button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-        }
-
-        button:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        }
-
-        #errorMessages {
-            color: #dc3545;
-            list-style-type: none;
-            padding: 0;
-            margin-top: 10px;
-            animation: shake 0.5s ease-in-out;
-        }
-
-        #result, #optimizedResult {
-            max-width: 900px;
-            margin: 40px auto;
-            padding: 30px;
-            background-color: #fff;
-            border-radius: 15px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-            animation: fadeIn 0.8s ease-out;
-        }
-
-        #result h2, #optimizedResult h2 {
-            color: var(--couleur-primaire);
-            text-align: center;
-            margin-bottom: 25px;
-            font-weight: 600;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 30px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        th, td {
-            padding: 16px 12px;
-            text-align: left;
-            border-bottom: 1px solid #eee;
-        }
-
-        th {
-            background-color: var(--couleur-primaire);
-            color: white;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        tbody tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-
-        tbody tr:hover {
-            background-color: #f2f2f2;
-            transition: background-color 0.2s ease;
-        }
-
-        .diagnostic-suroffre {
-            background-color: #d4edda;
-            color: #155724;
-            padding: 5px 10px;
-            border-radius: 5px;
-        }
-
-        .diagnostic-sousoffre {
-            background-color: #f8d7da;
-            color: #721c24;
-            padding: 5px 10px;
-            border-radius: 5px;
-        }
-
-        .header-actions {
-            display: flex;
-            justify-content: flex-end;
-            padding: 20px;
-            background-color: #f8f9fa;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-        }
-
-        table#optimizedTable {
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            overflow: hidden;
-            font-size: 15px;
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-            background-color: #f8f9fa;
-            animation: fadeIn 0.8s ease-out;
-        }
-
-        table#optimizedTable thead {
-            background-color: var(--couleur-primaire);
-            color: white;
-            text-transform: uppercase;
-        }
-
-        table#optimizedTable th {
-            padding: 14px;
-            text-align: left;
-            font-weight: 500;
-        }
-
-        table#optimizedTable tbody tr:nth-child(odd) {
-            background-color: #e9ecef;
-        }
-
-        table#optimizedTable tbody tr:nth-child(even) {
-            background-color: white;
-        }
-
-        table#optimizedTable tbody tr:hover {
-            background-color: #f1f3f5;
-            transition: background-color 0.2s ease;
-        }
-
-        table#optimizedTable td {
-            padding: 12px;
-            border-bottom: 1px solid #ddd;
-        }
-
-        table#optimizedTable td:nth-child(5),
-        table#optimizedTable td:nth-child(6),
-        table#optimizedTable td:nth-child(7),
-        table#optimizedTable td:nth-child(8) {
-            text-align: center;
-        }
-
-        table#optimizedTable td.freq-opti {
-            font-weight: 600;
-        }
-
-        table#optimizedTable td.charge-opti {
-            font-weight: 600;
-        }
-
-        table#optimizedTable td:empty::before {
-            content: "—";
-            font-style: italic;
-            color: #888;
-        }
-
-        .indicators {
-            display: flex;
-            justify-content: space-between;
-            padding: 30px;
-            margin-bottom: 30px;
-        }
-
-        .indicator-group {
-            width: 45%;
-            display: flex;
-            flex-direction: column;
-            gap: 25px;
-        }
-
-        .indicator {
-            background-color: #fff;
-            border: 2px solid #ddd;
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            text-align: center;
-            color: #333;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .indicator:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
-        }
-
-        .indicator h3 {
-            font-size: 18px;
-            margin: 0;
-            color: var(--couleur-primaire);
-            font-weight: 600;
-        }
-
-        .indicator p {
-            font-size: 24px;
-            margin: 12px 0 0;
-            font-weight: bold;
-            color: #333;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
-        }
-
-        @keyframes fadeInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-            transform: translateY(0);
-
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes shake {
-            0% {
-                transform: translateX(0);
-            }
-            25% {
-                transform: translateX(-5px);
-            }
-            50% {
-                transform: translateX(5px);
-            }
-            75% {
-                transform: translateX(-5px);
-            }
-            100% {
-                transform: translateX(0);
-            }
-        }
-
-        .export-button {
-            padding: 10px 15px;
-            font-size: 14px;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: 10px;
-            transition: background-color 0.2s ease;
-        }
-
-        .export-button:hover {
-            background-color: #218838;
-        }
 
     </style>
 </head>
 <body>
-    <div class="header-actions">
-        <button id="optimizerButton">Optimisation</button>
-    </div>
+<div class="background-text">
+    <div class="text-scroll">Keolis Rennes outil d'optimisation</div>
+    <div class="text-scroll">Keolis Rennes outil d'optimisation</div>
+    <div class="text-scroll">Keolis Rennes outil d'optimisation</div>
+    <div class="text-scroll">Keolis Rennes outil d'optimisation</div>
+    <div class="text-scroll">Keolis Rennes outil d'optimisation</div>
+</div>
+
+    <nav>
+    <ul>
+        <li><a href="#result">Diagnostic</a></li>
+        <li><a href="#optimizedResult">Optimisation</a></li>
+        <li><a href="#chartContainer">Graphique</a></li>
+    </ul>
+</nav>
+
     <h1>Diagnostic et Optimisation - Ligne b</h1>
     <form id="uploadForm" method="POST" enctype="multipart/form-data">
         <div>
@@ -395,36 +743,125 @@
             <input type="number" id="offPeakCapacity" value="110">
         </div>
 
+        <div>
+            <label for="coefHeures">Coefficient Heures (%):</label>
+            <input type="number" id="coefHeures" value="90" min="0" max="100" required>
+        </div>
+        <div>
+    <label for="coefHeuresSup">Coefficient Heures Supérieur (%):</label>
+    <input type="number" id="coefHeuresSup" value="5" min="0" max="100" required>
+</div>
+
+
+
         <button type="button" id="diagnosticButton">Diagnostic</button>
     </form>
     <ul id="errorMessages"></ul>
 
     <div id="result" class="hidden">
         <h2>Résultats du Diagnostic</h2>
-        <table id="diagnosticTable"></table>
+        <table id="diagnosticTable">
+    <thead>
+        <tr>
+            <th>Tranche Horaire</th>
+            <th>Tranches Offre</th>
+            <th>Max Voyageurs</th>
+            <th>Nb Rames Existante</th>
+            <th>Fréquence Existante</th>
+            <th>Diagnostic</th>
+        </tr>
+        <tr id="diagnosticFilters">
+            <!-- Ajoutez des champs de saisie pour chaque colonne -->
+            <th><input type="text" placeholder="Filtrer Tranche Horaire" oninput="filterTable('diagnosticTable', 0)"></th>
+            <th><input type="text" placeholder="Filtrer Tranches Offre" oninput="filterTable('diagnosticTable', 1)"></th>
+            <th><input type="text" placeholder="Filtrer Max Voyageurs" oninput="filterTable('diagnosticTable', 2)"></th>
+            <th><input type="text" placeholder="Filtrer Nb Rames" oninput="filterTable('diagnosticTable', 3)"></th>
+            <th><input type="text" placeholder="Filtrer Fréquence" oninput="filterTable('diagnosticTable', 4)"></th>
+            <th><input type="text" placeholder="Filtrer Diagnostic" oninput="filterTable('diagnosticTable', 5)"></th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+<button onclick="resetFilters('diagnosticTable')">Réinitialiser les filtres</button>
+
+
+
          <button class="export-button" onclick="exportTableToExcel('diagnosticTable', 'Diagnostic_Results')">Exporter vers Excel</button>
     </div>
 
     <div id="optimizedResult" class="hidden">
         <h2>Résultats de l'Optimisation</h2>
+         <!-- Ajouter le bouton ici -->
+    <button id="optimizerButton">Optimisation</button>
         <table id="optimizedTable">
-            <thead>
-            <tr>
-                <th>Direction</th>
-                <th>Tranche Horaire</th>
-                <th>Tranches Offre</th>
-                <th>Fréquence Optimisée</th>
-                <th>Fréquence Existante</th>
-                <th>Charge Optimisée</th>
-                <th>Charge Existante</th>
-                <th>Diagnostic</th>
-            </tr>
-        </thead>
-            <tbody>
-            </tbody>
-        </table>
+    <thead>
+        <tr>
+            <th>Direction</th>
+            <th>Tranche Horaire</th>
+            <th>Tranches Offre</th>
+            <th>Charge Existante</th>
+            <th>Fréquence Existante</th>
+            <th>Diagnostic avant optimisation</th> <!-- Nouvelle colonne -->
+            <th>Fréquence Optimisée</th>
+            <th>Charge Optimisée</th>
+            <th>Diagnostic après optimisation</th>
+        </tr>
+        <tr id="optimizedFilters">
+            <!-- Ajoutez des champs de saisie pour chaque colonne -->
+            <th><input type="text" placeholder="Filtrer Direction" oninput="filterTable('optimizedTable', 0)"></th>
+            <th><input type="text" placeholder="Filtrer Tranche Horaire" oninput="filterTable('optimizedTable', 1)"></th>
+            <th><input type="text" placeholder="Filtrer Tranches Offre" oninput="filterTable('optimizedTable', 2)"></th>
+            <th><input type="text" placeholder="Filtrer Charge Existante" oninput="filterTable('optimizedTable', 3)"></th>
+            <th><input type="text" placeholder="Filtrer Fréquence Existante" oninput="filterTable('optimizedTable', 4)"></th>
+            <th><input type="text" placeholder="Filtrer Diagnostic avant optimisation" oninput="filterTable('optimizedTable', 5)"></th>
+            <th><input type="text" placeholder="Filtrer Fréquence Optimisée" oninput="filterTable('optimizedTable', 6)"></th>
+            <th><input type="text" placeholder="Filtrer Charge Optimisée" oninput="filterTable('optimizedTable', 7)"></th>
+            <th><input type="text" placeholder="Filtrer Diagnostic" oninput="filterTable('optimizedTable', 8)"></th>
+        </tr>
+
+    </thead>
+
+    <tbody></tbody>
+
+</table>
+        <button onclick="resetFilters('optimizedTable')">Réinitialiser les filtres</button>
+        <label for="directionSelect">Choisir la direction :</label>
+        <select id="directionSelect">
+            <option value="CVI_SJG">CVI → SJG</option>
+            <option value="SJG_CVI">SJG → CVI</option>
+        </select>
+        <button id="graphButton" class="export-button">Afficher les Graphique</button> <!-- Nouveau bouton -->
+        <div id="chartContainer"></div> <!-- Conteneur pour le graphique interactif -->
         <button class="export-button" onclick="exportTableToExcel('optimizedTable', 'Optimisation_Results')">Exporter vers Excel</button>
     </div>
+<div id="additionalCharts" style="margin-top: 40px;">
+    <h2>Visualisations supplémentaires</h2>
+    <div style="display: flex; gap: 20px;">
+        <div style="flex: 1;">
+            <h3>Distribution des charges</h3>
+            <canvas id="chargeHistogram"></canvas>
+        </div>
+        <div style="flex: 1;">
+            <h3>Proportion des diagnostics</h3>
+            <canvas id="diagnosticPieChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Boîte modale pour le filtre -->
+<div id="filterModal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); z-index: 1000;">
+    <h3>Filtrer la colonne</h3>
+    <div>
+        <label>
+            <input type="checkbox" id="selectAll"> Sélectionner tout
+        </label>
+    </div>
+    <div id="filterOptions" style="max-height: 200px; overflow-y: auto; margin-bottom: 20px;"></div>
+    <div>
+        <button id="applyFilterButton">OK</button>
+        <button id="cancelFilterButton">Annuler</button>
+    </div>
+</div>
 
     <script>
         /* script.js */
@@ -433,6 +870,106 @@
             document.getElementById('firstFile').addEventListener('change', handleFirstFileChange);
             document.getElementById('diagnosticButton').addEventListener('click', processFiles);
             document.getElementById('optimizerButton').addEventListener('click', optimizeData);
+            // Ajouter un écouteur pour le bouton "Graphique"
+    document.getElementById('graphButton').addEventListener('click', () => {
+    const data = extractDataForChart(); // Extraire les données du tableau filtrées par direction
+
+    // Récupérer la période sélectionnée
+    const selectedPeriod = document.getElementById('sheet').value;
+
+    // Créer le titre dynamique
+    const chartTitle = `Visualisation de la fréquence et de la charge existante et optimale - ${selectedPeriod}`;
+
+    // Créer les données pour le graphique Plotly
+    const chartData = [
+        // Aire pour la fréquence existante
+        {
+            x: data.map(item => item.trancheHoraire),
+            y: data.map(item => item.frequenceExistante),
+            name: 'Fréquence Existante',
+            type: 'scatter',
+            mode: 'lines',
+            fill: 'tozeroy', // Aire remplie
+            line: { color: 'orange', width: 0 }, // Ligne invisible
+            yaxis: 'y2' // Deuxième axe Y
+        },
+        // Aire pour la fréquence optimisée
+        {
+            x: data.map(item => item.trancheHoraire),
+            y: data.map(item => item.frequenceOptimisee),
+            name: 'Fréquence Optimisée',
+            type: 'scatter',
+            mode: 'lines',
+            fill: 'tozeroy', // Aire remplie
+            line: { color: 'red', width: 0 }, // Ligne invisible
+            yaxis: 'y2' // Deuxième axe Y
+        },
+        // Courbe pour la charge existante
+        {
+            x: data.map(item => item.trancheHoraire),
+            y: data.map(item => item.chargeExistante),
+            name: 'Charge Existante',
+            type: 'scatter',
+            mode: 'lines',
+            line: { color: 'blue', width: 2 },
+            yaxis: 'y1' // Premier axe Y
+        },
+        // Courbe pour la charge optimisée
+        {
+            x: data.map(item => item.trancheHoraire),
+            y: data.map(item => item.chargeOptimisee),
+            name: 'Charge Optimisée',
+            type: 'scatter',
+            mode: 'lines',
+            line: { color: 'green', width: 2 },
+            yaxis: 'y1' // Premier axe Y
+        }
+    ];
+
+    // Définir la mise en page du graphique Plotly
+    const layout = {
+        title: chartTitle, // Utiliser le titre dynamique
+        xaxis: { title: 'Tranche Horaire' },
+        yaxis: {
+            title: 'Charge',
+            titlefont: { color: 'blue' },
+            tickfont: { color: 'blue' }
+        },
+        yaxis2: {
+            title: 'Fréquence (minutes)',
+            titlefont: { color: 'orange' },
+            tickfont: { color: 'orange' },
+            overlaying: 'y', // Superposer au premier axe Y
+            side: 'right' // Placer à droite
+        },
+        legend: {
+            x: 0.5, // Centrer la légende horizontalement
+            y: 1.05, // Positionner la légende en dessous du titre (ajustez cette valeur pour l'espace)
+            orientation: 'h', // Légende horizontale
+            xanchor: 'center', // Ancrage au centre
+            yanchor: 'bottom' // Ancrage en bas
+        },
+        margin: { t: 80 } // Augmenter la marge supérieure pour éviter que le titre ne chevauche la légende
+    };
+
+    // Afficher le graphique Plotly
+    Plotly.newPlot('chartContainer', chartData, layout);
+
+    // Afficher les graphiques supplémentaires (histogramme et camembert)
+    createAdditionalCharts(data);
+});
+
+
+
+
+
+
+
+
+
+
+
+
 
             // Fonction pour gérer le changement du premier fichier
             async function handleFirstFileChange() {
@@ -492,207 +1029,266 @@
             }
 
             // Fonction pour créer le tableau de diagnostic
-            function createDiagnosticTable(data) {
-                const table = document.getElementById('diagnosticTable');
-                table.innerHTML = '';
-                const tbody = table.createTBody();
+           function createDiagnosticTable(data) {
+    const table = document.getElementById('diagnosticTable');
+    const tbody = table.querySelector('tbody');
+    tbody.innerHTML = '';
 
-                // Fonction interne pour ajouter les lignes de diagnostic
-                function addDiagnosticRows(diagnosticData, direction) {
-                    if (diagnosticData) {
-                        const titleRow = tbody.insertRow();
-                        const titleCell = titleRow.insertCell(0);
-                        titleCell.colSpan = 6;
-                        titleCell.innerText = `Diagnostics ${direction}`;
-                        titleCell.style.fontWeight = 'bold';
+    function addDiagnosticRows(diagnosticData, direction) {
+        if (diagnosticData) {
+            const titleRow = tbody.insertRow();
+            const titleCell = titleRow.insertCell(0);
+            titleCell.colSpan = 6;
+            titleCell.innerText = direction === "Sens Aller"
+                ? `Diagnostics ${direction} (Gaité vers Cesson via Silva)`
+                : `Diagnostics ${direction} (Cesson via Silva vers Gaité)`;
+            titleCell.style.fontWeight = 'bold';
 
-                        const headerRow = tbody.insertRow();
-                        ['Tranche Horaire', 'Tranches Offre', 'Max Voyageurs', 'Nb Rames Existante', 'Fréquence Existante', 'Diagnostic'].forEach(text => {
-                            const th = document.createElement('th');
-                            th.innerText = text;
-                            headerRow.appendChild(th);
-                        });
+            const headerRow = tbody.insertRow();
+            ['Tranche Horaire', 'Tranches Offre', 'Max Voyageurs', 'Nb Rames Existante', 'Fréquence Existante', 'Diagnostic'].forEach(text => {
+                const th = document.createElement('th');
+                th.innerText = text;
+                headerRow.appendChild(th);
+            });
 
-                        diagnosticData.forEach(diagnostic => {
-                            const row = tbody.insertRow();
-                            const diagnosis = getDiagnosis(parseInt(diagnostic.max_voyageurs, 10), diagnostic.tranche);
+            diagnosticData.forEach(diagnostic => {
+                const row = tbody.insertRow();
+                const diagnosis = getDiagnosis(parseInt(diagnostic.max_voyageurs, 10), diagnostic.tranche);
 
-                            ['tranche', 'tranches_offre', 'max_voyageurs', 'nb_rames', 'frequence'].forEach((key, index) => {
-                                const cell = row.insertCell(index);
-                                if (key === 'max_voyageurs' || key === 'nb_rames') {
-                                    const value = parseFloat(diagnostic[key]); // Convertir en nombre à virgule flottante
-                                    cell.innerText = isNaN(value) ? 'N/A' : Math.round(value); // Arrondir et afficher
-                                } else {
-                                    cell.innerText = diagnostic[key] || 'N/A';
-                                }
-                            });
+                // Ajouter les cellules
+                const trancheCell = row.insertCell(0);
+                trancheCell.innerText = diagnostic.tranche || 'N/A';
 
-                            const diagnosisCell = row.insertCell(5);
-                            diagnosisCell.innerText = diagnosis;
-                            diagnosisCell.className = getDiagnosticClass(diagnosis);
-                            row.dataset.direction = direction; // Stocker la direction
-                        });
-                    }
-                }
+                const tranchesOffreCell = row.insertCell(1);
+                tranchesOffreCell.innerText = diagnostic.tranches_offre || 'N/A';
 
-                // Ajout des lignes pour "Sens Aller" et "Sens Retour"
-                addDiagnosticRows(data.diagnostic_sens_aller, "Sens Aller");
-                addDiagnosticRows(data.diagnostic_sens_retour, "Sens Retour");
-            }
+                const maxVoyageursCell = row.insertCell(2);
+                maxVoyageursCell.innerText = Math.round(parseFloat(diagnostic.max_voyageurs)); // Arrondir Max Voyageurs
+
+                const nbRamesCell = row.insertCell(3);
+                nbRamesCell.innerText = parseFloat(diagnostic.nb_rames).toFixed(1); // Un seul chiffre après la virgule
+
+                const frequenceCell = row.insertCell(4);
+                frequenceCell.innerText = diagnostic.frequence || 'N/A';
+
+                const diagnosisCell = row.insertCell(5);
+                diagnosisCell.innerText = diagnosis;
+                diagnosisCell.className = getDiagnosticClass(diagnosis);
+                row.dataset.direction = direction;
+            });
+        }
+    }
+
+    addDiagnosticRows(data.diagnostic_sens_aller, "Sens Aller");
+    addDiagnosticRows(data.diagnostic_sens_retour, "Sens Retour");
+}
+
+
+
+
 
             // Fonction pour optimiser les données
-            async function optimizeData() {
-                const diagnosticTable = document.getElementById('diagnosticTable');
-                const optimizedTable = document.getElementById('optimizedTable');
+           async function optimizeData() {
+    const diagnosticTable = document.getElementById('diagnosticTable');
+    const optimizedTable = document.getElementById('optimizedTable');
 
-                if (!diagnosticTable || !optimizedTable) {
-                    displayErrorMessage("Tableaux de diagnostic ou d'optimisation introuvables.");
-                    return;
-                }
+    if (!diagnosticTable || !optimizedTable) {
+        displayErrorMessage("Tableaux de diagnostic ou d'optimisation introuvables.");
+        return;
+    }
 
-                const diagnosticRows = Array.from(diagnosticTable.querySelectorAll("tbody tr"));
-                if (diagnosticRows.length === 0) {
-                    displayErrorMessage("Le tableau de diagnostic est vide.");
-                    return;
-                }
+    const diagnosticRows = Array.from(diagnosticTable.querySelectorAll("tbody tr"));
+    if (diagnosticRows.length === 0) {
+        displayErrorMessage("Le tableau de diagnostic est vide.");
+        return;
+    }
 
-                // Filtrer les lignes "Sous-offre"
-                const sousOffreRows = diagnosticRows.filter(row => {
-                    const cells = row.getElementsByTagName('td');
-                    if (cells.length < 6) return false; // Ignorer les lignes invalides
-                    const diagnostic = cells[5].textContent.trim();
-                    return diagnostic === "Sous-offre";
-                });
+    // Filtrer les lignes "Sur-offre"
+    const surOffreRows = diagnosticRows.filter(row => {
+        const cells = row.getElementsByTagName('td');
+        if (cells.length < 6) return false; // Ignorer les lignes invalides
+        const diagnostic = cells[5].textContent.trim();
+        return diagnostic === "Sur-offre" || diagnostic === "Sous-offre"; // Inclure "Sur-offre" et "Sous-offre"
+    });
 
-                const sousOffreData = extractAndOptimizeData(sousOffreRows);
-                populateOptimizedTable(sousOffreData);
+    const surOffreData = extractAndOptimizeData(surOffreRows);
 
-                // Afficher un message et faire défiler vers le tableau optimisé
-                const optimizedTableBody = document.getElementById('optimizedTable').querySelector("tbody");
-                if (optimizedTableBody.rows.length === 0) {
-                    alert("Aucune ligne avec 'Sous-offre' n'a été trouvée.");
-                } else {
-                    alert(`Nombre de lignes optimisées : ${optimizedTableBody.rows.length}`);
-                    showOptimizedResult(); // Affiche le tableau optimisé
-                    document.getElementById('optimizedResult').scrollIntoView({ behavior: 'smooth' }); // Faire défiler
-                }
-            }
+    // Afficher le tableau optimisé
+    populateOptimizedTable(surOffreData);
+    showOptimizedResult(); // Affiche la section des résultats optimisés
+
+    // Afficher un message et faire défiler vers le tableau optimisé
+    const optimizedTableBody = document.getElementById('optimizedTable').querySelector("tbody");
+    if (optimizedTableBody.rows.length === 0) {
+        alert("Aucune ligne avec 'Sur-offre' n'a été trouvée.");
+    } else {
+        alert(`Nombre de lignes optimisées : ${optimizedTableBody.rows.length}`);
+        document.getElementById('optimizedResult').scrollIntoView({ behavior: 'smooth' }); // Faire défiler
+    }
+
+    // Créer le graphique après l'affichage du tableau
+    createOptimizationChart(surOffreData);
+}
+
+
+
+
 
             // Fonction pour extraire et optimiser les données
-            function extractAndOptimizeData(diagnosticRows) {
-                const peakCapacity = parseInt(document.getElementById('peakCapacity').value, 10);
-                const offPeakCapacity = parseInt(document.getElementById('offPeakCapacity').value, 10);
+           function extractAndOptimizeData(diagnosticRows) {
+    const peakCapacity = parseInt(document.getElementById('peakCapacity').value, 10);
+    const offPeakCapacity = parseInt(document.getElementById('offPeakCapacity').value, 10);
+    const coefHeures = parseInt(document.getElementById('coefHeures').value, 10) / 100; // Borne inférieure
+    const coefHeuresSup = parseInt(document.getElementById('coefHeuresSup').value, 10) / 100; // Borne supérieure
 
-                const timeRanges = {
-                    peak: [['07:00', '09:00'], ['16:00', '18:30']],
-                    offPeak: [['00:00', '07:00'], ['09:00', '16:00'], ['18:30', '23:59']]
-                };
+    const timeRanges = {
+        peak: [['07:00', '09:00'], ['16:00', '18:30']],
+        offPeak: [['00:00', '07:00'], ['09:00', '16:00'], ['18:30', '23:59']]
+    };
 
-                // Fréquences disponibles (en hh:mm:ss)
-                const peakFrequencies = [
-                    "00:01:37", "00:01:40", "00:01:44", "00:01:49", "00:01:54", "00:01:58", "00:02:05",
-                    "00:02:09", "00:02:15", "00:02:20", "00:02:22", "00:02:25", "00:02:32", "00:02:40", "00:02:50", "00:03:00"
-                ];
-                const offPeakFrequencies = [
-                    "00:02:05", "00:02:09", "00:02:15","00:02:20", "00:02:22", "00:02:25", "00:02:32", "00:02:40", "00:02:50", "00:03:00", "00:03:12",
-                    "00:03:26", "00:03:42", "00:04:00", "00:04:15", "00:04:42", "00:05:20", "00:05:55",
-                    "00:06:50", "00:07:50"
-                ];
+    // Fréquences disponibles (en hh:mm:ss)
+    const peakFrequencies = [
+        "00:01:37", "00:01:40", "00:01:44", "00:01:49", "00:01:54", "00:01:58", "00:02:05",
+        "00:02:09", "00:02:15", "00:02:20", "00:02:22", "00:02:25", "00:02:32", "00:02:40", "00:02:50", "00:03:00"
+    ];
+    const offPeakFrequencies = [
+        "00:02:05", "00:02:09", "00:02:15", "00:02:20", "00:02:22", "00:02:25", "00:02:32", "00:02:40", "00:02:50", "00:03:00", "00:03:12",
+        "00:03:26", "00:03:42", "00:04:00", "00:04:15", "00:04:42", "00:05:20", "00:05:55"
+    ];
 
-                function isInRange(time, ranges) {
-                    for (let range of ranges) {
-                        if (time >= range[0] && time <= range[1]) {
-                            return true;
-                        }
-                    }
-                    return false;
-                }
-
-                function findClosestFrequencyForSurOffre(targetTime, availableFrequencies, targetLoad, capacity, existingFrequencyMinutes, maxVoyageurs) {
-                    let closestFrequency = null;
-                    let minDifference = Infinity;
-
-                    availableFrequencies.forEach(frequency => {
-                        const frequencyInMinutes = convertTimeToMinutes(frequency);
-                        const newLoad = (maxVoyageurs * frequencyInMinutes) / existingFrequencyMinutes;
-
-                        // Check if the new load is less than or equal to the capacity (Sur-offre)
-                        if (newLoad <= capacity) {
-                            const targetInMinutes = convertTimeToMinutes(targetTime);
-                            const difference = Math.abs(frequencyInMinutes - targetInMinutes);
-
-                            if (difference < minDifference) {
-                                minDifference = difference;
-                                closestFrequency = frequency;
-                            }
-                        }
-                    });
-
-                 if (!closestFrequency) {
-                     return convertMinutesToHHMMSS(Math.min(...availableFrequencies.map(convertTimeToMinutes))) || 'N/A'
-                  }
-
-                    return closestFrequency;
-                }
-
-
-
-                return diagnosticRows.map(row => {
-                    const cells = row.getElementsByTagName('td');
-                    if (cells.length < 6) return null; // Ignorer les lignes invalides
-
-                    const direction = row.dataset.direction;
-                    const trancheHoraire = cells[0].textContent.trim();
-                    const tranchesOffre = cells[1].textContent.trim();
-                    const maxVoyageurs = parseInt(cells[2].textContent.trim(), 10); // Parse maxVoyageurs as integer
-                    const frequenceExistanteStr = cells[4].textContent.trim();
-
-                    if (!frequenceExistanteStr || frequenceExistanteStr === "0") {
-                        return {
-                            direction,
-                            trancheHoraire,
-                            tranchesOffre,
-                            frequenceOptimisee: null,
-                            frequenceExistante: frequenceExistanteStr,
-                            chargeOptimisee: null,
-                            chargeExistante: maxVoyageurs,
-                            diagnostic: 'N/A'
-                        };
-                    }
-
-                    const frequenceExistanteMinutes = convertTimeToMinutes(frequenceExistanteStr);
-                    const diagnosticTime = trancheHoraire.substring(0, 5);
-                    const capaciteMax = isInRange(diagnosticTime, timeRanges.peak) ? peakCapacity : offPeakCapacity;
-
-                     // Determine available frequencies based on peak or off-peak hours
-                     const availableFrequencies = isInRange(diagnosticTime, timeRanges.peak) ? peakFrequencies : offPeakFrequencies;
-
-                     // Calculate target frequency for Sur-offre
-                    let frequenceOptimiseeInMinutes = Math.max(1.6167, Math.min((frequenceExistanteMinutes * capaciteMax) / maxVoyageurs, 7.8333));
-                    let frequenceOptimiseeFormatted = convertMinutesToHHMMSS(frequenceOptimiseeInMinutes);
-
-
-                     frequenceOptimiseeFormatted = findClosestFrequencyForSurOffre(frequenceOptimiseeFormatted, availableFrequencies, capaciteMax, capaciteMax, frequenceExistanteMinutes, maxVoyageurs);
-
-                   const chargeOptimiseeMinutes = convertTimeToMinutes(frequenceOptimiseeFormatted);
-                    const chargeOptimisee = (maxVoyageurs * chargeOptimiseeMinutes) / frequenceExistanteMinutes;
-                  const diagnostic = chargeOptimisee <= capaciteMax ? 'Sur-offre' : 'Sous-offre';
-
-
-
-
-                    return {
-                        direction,
-                        trancheHoraire,
-                        tranchesOffre,
-                        frequenceOptimisee: frequenceOptimiseeFormatted || 'N/A',
-                        frequenceExistante: frequenceExistanteStr,
-                        chargeOptimisee: chargeOptimisee !== null ? chargeOptimisee.toFixed(0) : 'N/A',
-                        chargeExistante: maxVoyageurs,
-                        diagnostic: diagnostic
-                    };
-                }).filter(Boolean); // Supprimer les entrées null
+    function isInRange(time, ranges) {
+        for (let range of ranges) {
+            if (time >= range[0] && time <= range[1]) {
+                return true;
             }
+        }
+        return false;
+    }
+
+    function findBestFrequency(chargeExistante, frequenceExistanteMinutes, capaciteMax, availableFrequencies) {
+        let bestFrequency = null;
+        let bestCharge = chargeExistante;
+        let minDifference = Math.abs(chargeExistante - capaciteMax);
+        let bestFrequencyInAcceptance = null;
+        let bestChargeInAcceptance = chargeExistante;
+        let minDifferenceInAcceptance = Infinity;
+
+        availableFrequencies.forEach(frequency => {
+            const frequencyInMinutes = convertTimeToMinutes(frequency);
+            const chargeOptimisee = (chargeExistante * frequencyInMinutes) / frequenceExistanteMinutes;
+
+            const difference = Math.abs(chargeOptimisee - capaciteMax);
+
+            // Vérifier si la charge optimisée est dans l'intervalle d'acceptation
+            const lowerBound = capaciteMax * coefHeures;
+            const upperBound = capaciteMax * (1 + coefHeuresSup);
+
+            if (chargeOptimisee >= lowerBound && chargeOptimisee <= upperBound) {
+                if (difference < minDifferenceInAcceptance) {
+                    minDifferenceInAcceptance = difference;
+                    bestFrequencyInAcceptance = frequency;
+                    bestChargeInAcceptance = chargeOptimisee;
+                }
+            }
+
+            // Garder la fréquence qui rapproche le plus la charge du seuil, même si elle est en dehors de l'intervalle
+            if (difference < minDifference) {
+                minDifference = difference;
+                bestFrequency = frequency;
+                bestCharge = chargeOptimisee;
+            }
+        });
+
+        // Si une fréquence dans l'intervalle d'acceptation est trouvée, la retourner
+        if (bestFrequencyInAcceptance) {
+            return { bestFrequency: bestFrequencyInAcceptance, bestCharge: bestChargeInAcceptance };
+        }
+
+        // Sinon, retourner la fréquence qui rapproche le plus la charge du seuil
+        return { bestFrequency, bestCharge };
+    }
+
+    return diagnosticRows.map(row => {
+        const cells = row.getElementsByTagName('td');
+        if (cells.length < 6) return null; // Ignorer les lignes invalides
+
+        const direction = row.dataset.direction;
+        const trancheHoraire = cells[0].textContent.trim();
+        const tranchesOffre = cells[1].textContent.trim();
+        const maxVoyageurs = parseInt(cells[2].textContent.trim(), 10);
+        const frequenceExistanteStr = cells[4].textContent.trim();
+        const diagnosticAvantOptimisation = cells[5].textContent.trim(); // Récupérer le diagnostic
+
+        // Vérifier que la fréquence existante et la charge existante sont valides
+        if (!frequenceExistanteStr || frequenceExistanteStr === "0" || maxVoyageurs <= 0) {
+            return {
+                direction,
+                trancheHoraire,
+                tranchesOffre,
+                chargeExistante: maxVoyageurs,
+                frequenceExistante: frequenceExistanteStr,
+                frequenceOptimisee: frequenceExistanteStr, // Utiliser la fréquence existante comme valeur par défaut
+                chargeOptimisee: maxVoyageurs, // Utiliser la charge existante comme valeur par défaut
+                diagnostic: 'N/A'
+            };
+        }
+
+        const frequenceExistanteMinutes = convertTimeToMinutes(frequenceExistanteStr);
+        if (frequenceExistanteMinutes === 0) {
+            return {
+                direction,
+                trancheHoraire,
+                tranchesOffre,
+                chargeExistante: maxVoyageurs,
+                frequenceExistante: frequenceExistanteStr,
+                frequenceOptimisee: frequenceExistanteStr, // Utiliser la fréquence existante comme valeur par défaut
+                chargeOptimisee: maxVoyageurs, // Utiliser la charge existante comme valeur par défaut
+                diagnostic: 'N/A'
+            };
+        }
+
+        const diagnosticTime = trancheHoraire.substring(0, 5);
+        const capaciteMax = isInRange(diagnosticTime, timeRanges.peak) ? peakCapacity : offPeakCapacity;
+
+        // Determine available frequencies based on peak or off-peak hours
+        const availableFrequencies = isInRange(diagnosticTime, timeRanges.peak) ? peakFrequencies : offPeakFrequencies;
+
+        // Trouver la meilleure fréquence pour rapprocher la charge optimisée du seuil
+        const { bestFrequency, bestCharge } = findBestFrequency(maxVoyageurs, frequenceExistanteMinutes, capaciteMax, availableFrequencies);
+
+        // Déterminer le diagnostic après optimisation
+        const lowerBound = capaciteMax * coefHeures;
+        const upperBound = capaciteMax * (1 + coefHeuresSup);
+        let diagnostic;
+        if (bestCharge >= lowerBound && bestCharge <= upperBound) {
+            diagnostic = 'OK'; // Charge optimisée dans la plage acceptable
+        } else if (bestCharge > upperBound) {
+            diagnostic = 'Sous-offre'; // Charge optimisée dépasse la borne supérieure
+        } else {
+            diagnostic = 'Sur-offre'; // Charge optimisée est en dessous de la borne inférieure
+        }
+
+        return {
+            direction,
+            trancheHoraire,
+            tranchesOffre,
+            chargeExistante: maxVoyageurs,
+            frequenceExistante: frequenceExistanteStr,
+            diagnosticAvantOptimisation, // Ajouter le diagnostic avant optimisation
+            frequenceOptimisee: bestFrequency || frequenceExistanteStr, // Utiliser la fréquence existante comme valeur par défaut
+            chargeOptimisee: bestCharge !== null ? bestCharge.toFixed(0) : maxVoyageurs, // Utiliser la charge existante comme valeur par défaut
+            diagnostic: diagnostic
+        };
+    }).filter(Boolean); // Supprimer les entrées null
+}
+
+
+
+
+
+
+
+
 
             // Conversion du temps au format hh:mm:ss en minutes (pour simplifier les calculs)
             function convertTimeToMinutes(timeStr) {
@@ -717,74 +1313,100 @@
             }
 
             // Fonction pour peupler le tableau optimisé
-            function populateOptimizedTable(data) {
-                const optimizedTableBody = document.getElementById('optimizedTable').querySelector("tbody");
-                optimizedTableBody.innerHTML = "";
+            // Fonction pour peupler le tableau optimisé
+function populateOptimizedTable(data) {
+    const optimizedTableBody = document.getElementById('optimizedTable').querySelector("tbody");
+    optimizedTableBody.innerHTML = "";
 
-                data.forEach(item => {
-                    const row = optimizedTableBody.insertRow();
+    data.forEach(item => {
+        const row = optimizedTableBody.insertRow();
 
-                    // Colonne "Direction" ajoutée avant Tranche Horaire
-                    const directionCell = row.insertCell(0);
-                    directionCell.innerText = item.direction;
+        // Colonne "Direction" ajoutée avant Tranche Horaire
+        const directionCell = row.insertCell(0);
+        directionCell.innerText = item.direction === "Sens Aller" ? "sjg-->cvi" : "cvi-->sjg";
 
-                    const trancheCell = row.insertCell(1);
-                    trancheCell.innerText = item.trancheHoraire;
+        const trancheCell = row.insertCell(1);
+        trancheCell.innerText = item.trancheHoraire;
 
-                    const offreCell = row.insertCell(2);
-                    offreCell.innerText = item.tranchesOffre;
+        const offreCell = row.insertCell(2);
+        offreCell.innerText = item.tranchesOffre;
 
-                    const freqOptiCell = row.insertCell(3);
-                    freqOptiCell.innerText = item.frequenceOptimisee !== null ? item.frequenceOptimisee : "null";
-                    freqOptiCell.classList.add('freq-opti');
+        const chargeExistanteCell = row.insertCell(3);
+        chargeExistanteCell.innerText = item.chargeExistante;
+        chargeExistanteCell.classList.add('charge-exist');
 
-                    const freqExistanteCell = row.insertCell(4);
-                    freqExistanteCell.innerText = item.frequenceExistante;
-                    freqExistanteCell.classList.add('freq-exist');
+        const freqExistanteCell = row.insertCell(4);
+        freqExistanteCell.innerText = item.frequenceExistante;
+        freqExistanteCell.classList.add('freq-exist');
 
-                    const chargeOptimiseeCell = row.insertCell(5);
-                    chargeOptimiseeCell.innerText = item.chargeOptimisee;
-                    chargeOptimiseeCell.classList.add('charge-opti');
+        // Nouvelle colonne "Diagnostic avant optimisation"
+        const diagnosticAvantCell = row.insertCell(5);
+        diagnosticAvantCell.innerText = item.diagnosticAvantOptimisation || "N/A"; // Afficher le diagnostic
+        diagnosticAvantCell.classList.add('diagnostic-avant'); // Ajouter une classe pour le style
 
-                    const chargeExistanteCell = row.insertCell(6);
-                    chargeExistanteCell.innerText = item.chargeExistante;
-                    chargeExistanteCell.classList.add('charge-exist');
+        const freqOptiCell = row.insertCell(6);
+        freqOptiCell.innerText = item.frequenceOptimisee !== null ? item.frequenceOptimisee : "null";
+        freqOptiCell.classList.add('freq-opti');
 
-                    const diagnosticCell = row.insertCell(7);
-                    diagnosticCell.innerText = item.diagnostic;
-                });
-            }
+        const chargeOptimiseeCell = row.insertCell(7);
+        chargeOptimiseeCell.innerText = item.chargeOptimisee;
+        chargeOptimiseeCell.classList.add('charge-opti');
+
+        const diagnosticCell = row.insertCell(8);
+        diagnosticCell.innerText = item.diagnostic;
+    });
+}
+
+
+
+
+
+
+
+
 
             // Fonction pour obtenir le diagnostic
-            function getDiagnosis(maxVoyageurs, tranche) {
-                const peakCapacity = parseInt(document.getElementById('peakCapacity').value, 10);
-                const offPeakCapacity = parseInt(document.getElementById('offPeakCapacity').value, 10);
-                const timeRanges = {
-                    peak: [['07:00', '09:00'], ['16:00', '18:30']],
-                    offPeak: [['00:00', '07:00'], ['09:00', '16:00'], ['18:30', '23:59']]
-                };
+            function getDiagnosis(maxVoyageurs, time) {
+    const peakCapacity = parseInt(document.getElementById('peakCapacity').value, 10);
+    const offPeakCapacity = parseInt(document.getElementById('offPeakCapacity').value, 10);
+    const coefHeures = parseInt(document.getElementById('coefHeures').value, 10) / 100; // Convertir en décimal
 
-                function isInRange(time, ranges) {
-                    for (let range of ranges) {
-                        if (time >= range[0] && time <= range[1]) {
-                            return true;
-                        }
-                    }
-                    return false;
-                }
-                const diagnosticTime = tranche.substring(0, 5);
+    const timeRanges = {
+        peak: [['07:00', '09:00'], ['16:00', '18:30']],
+        offPeak: [['00:00', '07:00'], ['09:00', '16:00'], ['18:30', '23:59']]
+    };
 
-                if (isInRange(diagnosticTime, timeRanges.peak)) {
-                    return maxVoyageurs > peakCapacity ? 'Sous-offre' : 'Sur-offre';
-                } else {
-                    return maxVoyageurs > offPeakCapacity ? 'Sous-offre' : 'Sur-offre';
-                }
+    function isInRange(time, ranges) {
+        for (let range of ranges) {
+            if (time >= range[0] && time <= range[1]) {
+                return true;
             }
+        }
+        return false;
+    }
+
+    const capacity = isInRange(time, timeRanges.peak) ? peakCapacity : offPeakCapacity;
+    const lowerBound = capacity * coefHeures; // Calculer la borne inférieure
+
+    if (maxVoyageurs >= lowerBound && maxVoyageurs <= capacity) {
+        return 'OK'; // Nouveau diagnostic si dans la plage
+    } else if (maxVoyageurs > capacity) {
+        return 'Sous-offre';
+    } else {
+        return 'Sur-offre';
+    }
+}
+
+
 
             // Fonction pour obtenir la classe CSS pour le diagnostic
             function getDiagnosticClass(diagnosis) {
-                return diagnosis === 'Sur-offre' ? 'diagnostic-suroffre' : 'diagnostic-sousoffre';
-            }
+    if (diagnosis === 'Sur-offre') return 'diagnostic-suroffre';
+    if (diagnosis === 'Sous-offre') return 'diagnostic-sousoffre';
+    if (diagnosis === 'OK') return 'diagnostic-ok';
+    return '';
+}
+
 
             // Fonction pour afficher les erreurs
             function displayErrorMessage(message) {
@@ -794,20 +1416,22 @@
             }
 
             // Fonctions pour gérer l'affichage des résultats
-            function showResult() {
-                document.getElementById('result').classList.remove('hidden');
-                document.getElementById('optimizedResult').classList.add('hidden');
-            }
+           // Fonctions pour gérer l'affichage des résultats
+function showResult() {
+    document.getElementById('result').classList.remove('hidden');
+    document.getElementById('optimizedResult').classList.add('hidden');
+}
 
-            function showOptimizedResult() {
-                document.getElementById('optimizedResult').classList.remove('hidden');
-                document.getElementById('result').classList.add('hidden');
-            }
+function showOptimizedResult() {
+    document.getElementById('optimizedResult').classList.remove('hidden');
+    document.getElementById('result').classList.add('hidden');
+}
 
-            function hideResult() {
-                document.getElementById('result').classList.add('hidden');
-                document.getElementById('optimizedResult').classList.add('hidden');
-            }
+function hideResult() {
+    document.getElementById('result').classList.add('hidden');
+    document.getElementById('optimizedResult').classList.add('hidden');
+}
+
 
             // Fonction pour l'upload de fichier
             async function uploadFile(url, formData) {
@@ -861,6 +1485,431 @@
             XLSX.writeFile(wb, filename + ".xlsx");
         }
 
+        function filterTable(tableId, columnIndex) {
+    const table = document.getElementById(tableId);
+    const filter = table.querySelectorAll('thead th input')[columnIndex].value.toUpperCase();
+    const rows = table.querySelectorAll('tbody tr');
+
+    rows.forEach(row => {
+        if (row.querySelector('td')) {
+            const cell = row.querySelectorAll('td')[columnIndex];
+            if (cell) {
+                const text = cell.textContent.toUpperCase();
+                row.style.display = text.includes(filter) ? '' : 'none';
+            }
+        }
+    });
+}
+
+
+        function createOptimizationChart(data) {
+    // Données pour le graphique
+    const chartData = {
+        labels: data.map(item => item.trancheHoraire), // Tranches horaires
+        datasets: [
+            {
+                label: 'Charge Existante',
+                data: data.map(item => item.chargeExistante), // Valeurs de la charge existante
+                borderColor: 'rgba(75, 192, 192, 1)', // Couleur de la courbe
+                fill: false,
+            },
+            {
+                label: 'Charge Optimisée',
+                data: data.map(item => item.chargeOptimisee), // Valeurs de la charge optimisée
+                borderColor: 'rgba(255, 99, 132, 1)', // Couleur de la courbe
+                fill: false,
+            }
+        ]
+    };
+
+    console.log("Données pour le graphique :", chartData); // Vérifiez les données dans la console
+
+    // Créer ou mettre à jour le graphique
+    const ctx = document.getElementById('optimizationChart').getContext('2d');
+    if (window.optimizationChart) {
+        // Si le graphique existe déjà, mettre à jour ses données
+        window.optimizationChart.data = chartData;
+        window.optimizationChart.update();
+        console.log("Graphique mis à jour.");
+    } else {
+        // Sinon, créer un nouveau graphique
+        window.optimizationChart = new Chart(ctx, {
+            type: 'line',
+            data: chartData,
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Charge Existante vs Charge Optimisée'
+                    }
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Tranche Horaire'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Charge'
+                        }
+                    }
+                }
+            }
+        });
+        console.log("Nouveau graphique créé.");
+    }
+}
+
+function convertDurationToMinutes(duration) {
+    const [hours, minutes, seconds] = duration.split(':').map(Number);
+    return hours * 60 + minutes + seconds / 60;
+}
+
+
+
+
+
+        function extractDataForChart() {
+    const table = document.getElementById('optimizedTable');
+    const rows = table.querySelectorAll('tbody tr');
+    const data = [];
+
+    // Récupérer la direction choisie
+    const direction = document.getElementById('directionSelect').value;
+
+    rows.forEach(row => {
+        const cells = row.querySelectorAll('td');
+        if (cells.length >= 9) { // Vérifier que la ligne contient des données (9 colonnes maintenant)
+            const rowDirection = cells[0].textContent.trim(); // La direction est dans la première colonne
+            const trancheHoraire = cells[1].textContent.trim();
+            const chargeExistante = parseFloat(cells[3].textContent.trim()); // Charge Existante à l'indice 3
+            const chargeOptimisee = parseFloat(cells[7].textContent.trim()); // Charge Optimisée à l'indice 7
+            const frequenceExistante = convertDurationToMinutes(cells[4].textContent.trim()); // Fréquence Existante à l'indice 4
+            const frequenceOptimisee = convertDurationToMinutes(cells[6].textContent.trim()); // Fréquence Optimisée à l'indice 6
+
+            // Filtrer les données en fonction de la direction
+            if (
+                (direction === "CVI_SJG" && rowDirection === "cvi-->sjg") ||
+                (direction === "SJG_CVI" && rowDirection === "sjg-->cvi")
+            ) {
+                data.push({
+                    trancheHoraire,
+                    chargeExistante,
+                    chargeOptimisee,
+                    frequenceExistante,
+                    frequenceOptimisee
+                });
+            }
+        }
+    });
+
+    return data;
+}
+
+
+
+
+
+        // Variables globales pour stocker les informations du filtre
+let currentTableId = null;
+let currentColumnIndex = null;
+
+// Fonction pour gérer l'événement "Sélectionner tout"
+function handleSelectAll(event) {
+    const isChecked = event.target.checked;
+    const filterOptions = document.querySelectorAll('.filterOption');
+    filterOptions.forEach(option => {
+        option.checked = isChecked;
+    });
+    console.log("Sélectionner tout :", isChecked); // Débogage
+}
+
+// Ouvrir la boîte modale de filtre
+function openFilterModal(tableId, columnIndex) {
+    currentTableId = tableId;
+    currentColumnIndex = columnIndex;
+
+    const table = document.getElementById(tableId);
+    const rows = table.querySelectorAll('tbody tr');
+    const uniqueValues = new Set();
+
+    // Récupérer les valeurs uniques de la colonne (uniquement pour les lignes visibles)
+    rows.forEach(row => {
+        if (row.style.display !== 'none') { // Ignorer les lignes déjà filtrées
+            const cell = row.querySelectorAll('td')[columnIndex];
+            if (cell) {
+                uniqueValues.add(cell.textContent.trim());
+            }
+        }
+    });
+
+    // Vider la boîte modale avant d'ajouter de nouvelles options
+    const filterOptions = document.getElementById('filterOptions');
+    filterOptions.innerHTML = ''; // Vider le contenu
+
+    // Supprimer l'élément "Sélectionner tout" s'il existe déjà
+    const existingSelectAll = document.getElementById('selectAll');
+    if (existingSelectAll) {
+        existingSelectAll.remove();
+    }
+
+    // Ajouter l'option "Sélectionner tout"
+    const selectAllLabel = document.createElement('label');
+    selectAllLabel.style.display = 'block';
+    selectAllLabel.innerHTML = `
+        <input type="checkbox" id="selectAll" checked> Sélectionner tout
+    `;
+    filterOptions.appendChild(selectAllLabel);
+
+    // Ajouter les valeurs uniques
+    uniqueValues.forEach(value => {
+        const label = document.createElement('label');
+        label.style.display = 'block';
+        label.innerHTML = `
+            <input type="checkbox" class="filterOption" value="${value}" checked> ${value}
+        `;
+        filterOptions.appendChild(label);
+    });
+
+    // Gérer l'événement "Sélectionner tout"
+    const selectAllCheckbox = document.getElementById('selectAll');
+    selectAllCheckbox.addEventListener('change', handleSelectAll);
+
+    // Afficher la boîte modale
+    document.getElementById('filterModal').style.display = 'block';
+}
+
+
+
+
+
+
+
+
+
+// Appliquer le filtre
+function applyFilter() {
+    const table = document.getElementById(currentTableId);
+    const rows = table.querySelectorAll('tbody tr');
+    const selectedValues = [];
+
+    // Récupérer les valeurs sélectionnées
+    document.querySelectorAll('#filterOptions input:checked').forEach(input => {
+        if (input.value !== "on") { // Ignorer l'option "Sélectionner tout"
+            selectedValues.push(input.value);
+        }
+    });
+
+    // Filtrer les lignes
+    rows.forEach(row => {
+        const cell = row.querySelectorAll('td')[currentColumnIndex];
+        if (cell) {
+            const cellValue = cell.textContent.trim();
+            // Appliquer le filtre uniquement si la ligne est déjà visible
+            if (row.style.display !== 'none') {
+                row.style.display = selectedValues.includes(cellValue) ? '' : 'none';
+            }
+        }
+    });
+
+    // Fermer la boîte modale
+    closeFilterModal();
+}
+
+function filterTable(tableId, columnIndex) {
+    const table = document.getElementById(tableId);
+    const filter = table.querySelectorAll('thead th input')[columnIndex].value.toUpperCase();
+    const rows = table.querySelectorAll('tbody tr');
+
+    rows.forEach(row => {
+        if (row.querySelector('td')) {
+            const cell = row.querySelectorAll('td')[columnIndex];
+            if (cell) {
+                const text = cell.textContent.toUpperCase();
+                // Appliquer le filtre uniquement si la ligne est déjà visible
+                if (row.style.display !== 'none') {
+                    row.style.display = text.includes(filter) ? '' : 'none';
+                }
+            }
+        }
+    });
+}
+
+
+
+
+// Fermer la boîte modale de filtre
+function closeFilterModal() {
+    document.getElementById('filterModal').style.display = 'none';
+}
+
+// Ajouter des boutons de filtre aux en-têtes de colonne
+function addFilterButtons(tableId) {
+    const table = document.getElementById(tableId);
+    const headerRow = table.querySelector('thead tr');
+
+    Array.from(headerRow.querySelectorAll('th')).forEach((th, index) => {
+        const filterButton = document.createElement('button');
+        filterButton.textContent = 'Filtrer';
+        filterButton.style.marginLeft = '10px';
+        filterButton.onclick = () => openFilterModal(tableId, index);
+        th.appendChild(filterButton);
+    });
+}
+
+// Appliquer les boutons de filtre aux tables
+document.addEventListener('DOMContentLoaded', () => {
+    addFilterButtons('diagnosticTable');
+    addFilterButtons('optimizedTable');
+});
+
+// Gérer les clics sur les boutons OK et Annuler
+document.getElementById('applyFilterButton').addEventListener('click', applyFilter);
+document.getElementById('cancelFilterButton').addEventListener('click', closeFilterModal);
+
+       function resetFilters(tableId) {
+    const table = document.getElementById(tableId);
+    const rows = table.querySelectorAll('tbody tr');
+
+    rows.forEach(row => {
+        row.style.display = ''; // Afficher toutes les lignes
+    });
+
+    // Réinitialiser les champs de filtre
+    const filterInputs = table.querySelectorAll('thead th input');
+    filterInputs.forEach(input => {
+        input.value = '';
+    });
+}
+        function createChargeHistogram(data) {
+    const tranchesHoraires = data.map(item => item.trancheHoraire); // Récupérer les tranches horaires
+    const charges = data.map(item => item.chargeExistante); // Récupérer les charges existantes
+    const ctx = document.getElementById('chargeHistogram').getContext('2d');
+
+    new Chart(ctx, {
+        type: 'bar', // Type de graphique : histogramme
+        data: {
+            labels: tranchesHoraires, // Utiliser les tranches horaires comme étiquettes
+            datasets: [{
+                label: 'Charge Existante',
+                data: charges, // Données pour l'axe Y
+                backgroundColor: 'rgba(75, 192, 192, 0.2)', // Couleur des barres
+                borderColor: 'rgba(75, 192, 192, 1)', // Couleur des bordures
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Charge'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Tranches horaires'
+                    }
+                }
+            },
+            plugins: {
+                datalabels: { // Afficher les valeurs sur les barres
+                    anchor: 'end',
+                    align: 'top',
+                    formatter: (value) => `${value}`, // Afficher la valeur exacte
+                    color: 'black',
+                    font: {
+                        weight: 'bold'
+                    }
+                }
+            }
+        }
+    });
+}
+
+function createDiagnosticPieChart(data) {
+    const diagnostics = data.map(item => item.diagnostic); // Récupérer les diagnostics
+    const diagnosticCounts = {
+        'Sur-offre': diagnostics.filter(d => d === 'Sur-offre').length,
+        'Sous-offre': diagnostics.filter(d => d === 'Sous-offre').length,
+        'OK': diagnostics.filter(d => d === 'OK').length
+    };
+
+    const total = Object.values(diagnosticCounts).reduce((acc, val) => acc + val, 0); // Calculer le total
+    const percentages = {
+        'Sur-offre': ((diagnosticCounts['Sur-offre'] / total) * 100).toFixed(2) + '%',
+        'Sous-offre': ((diagnosticCounts['Sous-offre'] / total) * 100).toFixed(2) + '%',
+        'OK': ((diagnosticCounts['OK'] / total) * 100).toFixed(2) + '%'
+    };
+
+    const ctx = document.getElementById('diagnosticPieChart').getContext('2d');
+
+    new Chart(ctx, {
+        type: 'pie', // Type de graphique : camembert
+        data: {
+            labels: Object.keys(diagnosticCounts).map(key => `${key} (${percentages[key]})`), // Ajouter les pourcentages aux étiquettes
+            datasets: [{
+                label: 'Proportion des diagnostics',
+                data: Object.values(diagnosticCounts), // Données pour les segments
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)', // Couleur pour "Sur-offre"
+                    'rgba(54, 162, 235, 0.2)', // Couleur pour "Sous-offre"
+                    'rgba(75, 192, 192, 0.2)'  // Couleur pour "OK"
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(75, 192, 192, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top', // Position de la légende
+                },
+                title: {
+                    display: true,
+                    text: 'Proportion des diagnostics'
+                },
+                datalabels: { // Afficher les pourcentages sur les segments
+                    formatter: (value, context) => {
+                        const label = context.chart.data.labels[context.dataIndex];
+                        return label;
+                    },
+                    color: 'black',
+                    font: {
+                        weight: 'bold'
+                    }
+                }
+            }
+        }
+    });
+}
+
+function createAdditionalCharts(data) {
+    createChargeHistogram(data); // Créer l'histogramme
+    createDiagnosticPieChart(data); // Créer le camembert
+}
+
+// Exemple d'utilisation
+document.getElementById('optimizerButton').addEventListener('click', () => {
+    const optimizedData = extractAndOptimizeData(diagnosticRows); // Récupérer les données optimisées
+    createAdditionalCharts(optimizedData); // Créer les graphiques supplémentaires
+});
+
+
     </script>
+
+
+
 </body>
 </html>
