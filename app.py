@@ -22,7 +22,6 @@ def convert_time_objects(data):
     else:
         return data
 
-
 def generate_diagnostics(df_sens, df_first, diagnostics_name):
     diagnostics = []
 
@@ -115,5 +114,5 @@ def generate_chart():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=5000, debug=True)
 

@@ -6,12 +6,8 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
-    <!-- Importer la police Poppins depuis Google Fonts -->
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-<!-- Ou importer la police Montserrat -->
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
        /* styles.css */
@@ -442,7 +438,6 @@ th input {
     padding: 5px 10px;
     border-radius: 5px;
 }
-
 /* Style pour la barre de navigation */
 nav {
     background-color: #ffffff; /* Fond blanc */
@@ -459,7 +454,7 @@ nav ul {
     margin: 0;
     display: flex;
     justify-content: center;
-    gap: 15px; /* Espace entre les boutons */
+    gap: 20px; /* Espace entre les boutons */
 }
 
 nav ul li {
@@ -468,65 +463,27 @@ nav ul li {
 
 nav ul li a {
     text-decoration: none;
-    color: var(--couleur-primaire); /* Utiliser la couleur primaire */
+    color: #28a745; /* Texte vert */
     background-color: transparent;
     padding: 10px 20px;
-    border-radius: 25px; /* Bords arrondis */
+    border-radius: 8px;
     font-size: 16px;
     font-weight: 500;
     transition: all 0.3s ease;
-    border: 2px solid var(--couleur-primaire); /* Bordure de la couleur primaire */
-    position: relative;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    border: 2px solid #28a745; /* Bordure verte */
 }
 
-/* Effet de fond au survol */
-nav ul li a::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(to right, var(--couleur-primaire), var(--couleur-secondaire));
-    transition: left 0.3s ease;
-    z-index: -1;
-}
-
-/* Effet de texte au survol */
 nav ul li a:hover {
+    background-color: #28a745; /* Fond vert au survol */
     color: white; /* Texte blanc au survol */
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-/* Animation du fond au survol */
-nav ul li a:hover::before {
-    left: 0;
-}
-
-/* Effet au clic */
 nav ul li a:active {
     transform: translateY(0);
     box-shadow: none;
 }
-
-/* Style pour le bouton actif */
-nav ul li a.active {
-    background: linear-gradient(to right, var(--couleur-primaire), var(--couleur-secondaire));
-    color: white;
-    border-color: transparent;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-/* Ajouter une icône aux boutons (optionnel) */
-nav ul li a i {
-    margin-right: 8px; /* Espace entre l'icône et le texte */
-}
-
 
 
     #filterModal {
@@ -573,136 +530,130 @@ nav ul li a i {
         overflow-y: auto; /* Ajoute une barre de défilement si nécessaire */
         margin-bottom: 20px; /* Espace avant les boutons */
     }
-
-#additionalCharts {
-    margin: 40px auto;
-    max-width: 1200px;
+.nb-rames-exist {
+    font-weight: 500; /* Exemple de style */
+    text-align: center; /* Centrer le texte */
 }
-
-#additionalCharts h2 {
-    text-align: center;
-    color: var(--couleur-primaire);
-    margin-bottom: 20px;
+.nb-rames-opti {
+    font-weight: 500; /* Exemple de style */
+    text-align: center; /* Centrer le texte */
 }
-
-#additionalCharts h3 {
-    text-align: center;
-    color: var(--couleur-texte);
-    margin-bottom: 10px;
+table#optimizedTable {
+    font-family: Arial, sans-serif; /* Utiliser une police plus compacte */
+    font-size: 12px; /* Réduire la taille de la police */
 }
-
-canvas {
-    max-width: 100%;
-    height: auto;
+table#diagnosticTable {
+    font-family: Arial, sans-serif; /* Utiliser la même police que le tableau optimisé */
+    font-size: 14px; /* Utiliser la même taille de police que le tableau optimisé */
 }
-
-        :root {
-    --police-famille: 'Poppins', sans-serif; /* Utiliser Poppins comme police principale */
-    /* Ou utiliser Montserrat : --police-famille: 'Montserrat', sans-serif; */
-    --couleur-primaire: #66a5ad; /* Bleu-vert doux */
-    --couleur-secondaire: #86acaa; /* Vert d'eau */
-    --couleur-accent: #f4a261; /* Orange chaud */
-    --couleur-fond: #f8f9fa; /* Gris très clair */
-    --couleur-texte: #495057; /* Gris foncé */
-}
-
-body {
-    font-family: var(--police-famille); /* Appliquer la police à tout le corps */
-    background-color: var(--couleur-fond);
-    color: var(--couleur-texte);
-    margin: 0;
-    padding: 0;
-    overflow-x: hidden;
-    transition: background-color 0.3s ease;
-}
-
-h1, h2, h3, h4, h5, h6 {
-    font-family: var(--police-famille); /* Appliquer la police aux titres */
-    font-weight: 600; /* Poids de police pour les titres */
-}
-
-button, input, select, textarea {
-    font-family: var(--police-famille); /* Appliquer la police aux éléments de formulaire */
-}
-
-nav ul li a {
-    font-family: var(--police-famille); /* Appliquer la police aux boutons de navigation */
-    font-weight: 500; /* Poids de police pour les boutons */
-}
-/* Style pour le fond défilant */
-.background-text {
-    position: fixed; /* Fixer le fond */
+/* Style simple et élégant pour les boutons de navigation */
+nav {
+    background-color: #ffffff; /* Fond blanc */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Ombre légère */
+    padding: 10px 20px;
+    position: sticky;
     top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: -1; /* Placer derrière le contenu */
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    align-items: center;
-    background-color: var(--couleur-fond); /* Couleur de fond */
-}
-
-/* Style pour chaque ligne de texte */
-.text-scroll {
-    font-family: 'Poppins', sans-serif; /* Utiliser la police Poppins */
-    font-size: 4rem; /* Taille du texte */
-    font-weight: 700; /* Poids de la police */
-    color: rgba(102, 165, 173, 0.1); /* Couleur du texte (très claire) */
-    white-space: nowrap; /* Empêcher le texte de se casser */
-    animation: scrollText 20s linear infinite; /* Animation de défilement */
-}
-
-/* Animation de défilement */
-@keyframes scrollText {
-    0% {
-        transform: translateX(-100%); /* Commencer à gauche */
-    }
-    100% {
-        transform: translateX(100%); /* Finir à droite */
-    }
-}
-        #loading {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(255, 255, 255, 0.8);
-    display: flex;
-    justify-content: center;
-    align-items: center;
     z-index: 1000;
 }
 
-.loader {
-    border: 8px solid #f3f3f3;
-    border-top: 8px solid #66a5ad;
-    border-radius: 50%;
-    width: 60px;
-    height: 60px;
-    animation: spin 1s linear infinite;
+nav ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    gap: 15px; /* Espace entre les boutons */
 }
 
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+nav ul li {
+    margin: 0;
 }
+
+nav ul li a {
+    text-decoration: none;
+    color: var(--couleur-primaire); /* Utilise la couleur primaire de l'appli */
+    background-color: transparent; /* Fond transparent */
+    padding: 10px 20px;
+    border-radius: 8px; /* Coins arrondis */
+    font-size: 16px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: 2px solid var(--couleur-primaire); /* Bordure avec la couleur primaire */
+}
+
+nav ul li a:hover {
+    background-color: var(--couleur-primaire); /* Fond avec la couleur primaire au survol */
+    color: white; /* Texte blanc au survol */
+    transform: translateY(-2px); /* Léger effet de soulèvement */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Ombre au survol */
+}
+
+nav ul li a:active {
+    transform: translateY(0); /* Retour à la position initiale au clic */
+    box-shadow: none; /* Supprime l'ombre au clic */
+}
+
+/* Style pour les écrans plus petits */
+@media (max-width: 768px) {
+    nav ul {
+        flex-direction: column; /* Empile les boutons verticalement */
+        gap: 10px; /* Réduit l'espace entre les boutons */
+    }
+
+    nav ul li a {
+        padding: 8px 15px; /* Réduit le padding sur mobile */
+        font-size: 14px; /* Réduit la taille de la police */
+    }
+}
+/* Style pour le texte défilant */
+.scrolling-text {
+    position: fixed;
+    top: 50%; /* Centrer verticalement */
+    left: 0;
+    right: 0;
+    white-space: nowrap; /* Empêcher le texte de se diviser en plusieurs lignes */
+    overflow: hidden; /* Cacher le texte qui dépasse */
+    color: rgba(102, 165, 173, 0.3); /* Couleur du texte (bleu-vert clair) */
+    font-size: 3rem; /* Taille du texte */
+    font-weight: bold; /* Texte en gras */
+    z-index: -1; /* Placer en arrière-plan */
+    animation: scrollText 20s linear infinite; /* Animation de défilement */
+}
+
+/* Animation pour faire défiler le texte */
+@keyframes scrollText {
+    from {
+        transform: translateX(100%); /* Commencer à droite */
+    }
+    to {
+        transform: translateX(-100%); /* Finir à gauche */
+    }
+}
+@media print {
+    table {
+        width: 100% !important;
+        font-size: 12px !important;
+    }
+    th, td {
+        padding: 8px !important;
+    }
+}
+
+
 
 
     </style>
 </head>
 <body>
-<div class="background-text">
-    <div class="text-scroll">Keolis Rennes outil d'optimisation</div>
-    <div class="text-scroll">Keolis Rennes outil d'optimisation</div>
-    <div class="text-scroll">Keolis Rennes outil d'optimisation</div>
-    <div class="text-scroll">Keolis Rennes outil d'optimisation</div>
-    <div class="text-scroll">Keolis Rennes outil d'optimisation</div>
-</div>
+<!-- Logo en haut à droite
+<div class="logo-container">
+    <img src="images/test.png" alt="Logo KEO Appli" class="logo-image">
+</div>-->
 
+<!-- Texte défilant en arrière-plan -->
+    <div class="scrolling-text">
+        Bienvenue sur la ligne B, là où l'offre est magique !
+    </div>
     <nav>
     <ul>
         <li><a href="#result">Diagnostic</a></li>
@@ -710,6 +661,7 @@ nav ul li a {
         <li><a href="#chartContainer">Graphique</a></li>
     </ul>
 </nav>
+
 
     <h1>Diagnostic et Optimisation - Ligne b</h1>
     <form id="uploadForm" method="POST" enctype="multipart/form-data">
@@ -724,19 +676,20 @@ nav ul li a {
         </div>
 
         <div id="secondFileDiv" class="hidden">
-            <label for="secondFile">Fichier de fréquentation sens aller (Gaité - Cesson via silva):</label>
+            <label for="secondFile">Fichier de fréquentation sens aller (Saint-Jacques – Gaîté -> Cesson – Viasilva):</label>
             <input type="file" name="secondFile" id="secondFile">
         </div>
 
         <div id="thirdFileDiv" class="hidden">
-            <label for="thirdFile">Fichier de fréquentation sens retour (Cesson via silva - Gaité  ):</label>
+            <label for="thirdFile">Fichier de fréquentation sens retour (Cesson – Viasilva -> Saint-Jacques – Gaîté  ):</label>
             <input type="file" name="thirdFile" id="thirdFile">
         </div>
 
         <div>
-            <label for="peakCapacity">Seuil maximal aux Heures de Pointe:</label>
+            <label for="peakCapacity">Seuil maximal aux Heures de Pointe JOB(7h–9h, 12h–13h(Mercredi-Oct) et 16h–18h30):</label>
             <input type="number" id="peakCapacity" value="168">
         </div>
+
 
         <div>
             <label for="offPeakCapacity">Seuil maximal aux Heures Creuses:</label>
@@ -787,12 +740,14 @@ nav ul li a {
 
 
          <button class="export-button" onclick="exportTableToExcel('diagnosticTable', 'Diagnostic_Results')">Exporter vers Excel</button>
+        <button class="export-button" onclick="exportTableToPDF('diagnosticTable', 'Diagnostic_Results')">Exporter vers PDF</button>
+
     </div>
+
 
     <div id="optimizedResult" class="hidden">
         <h2>Résultats de l'Optimisation</h2>
-         <!-- Ajouter le bouton ici -->
-    <button id="optimizerButton">Optimisation</button>
+         <button id="optimizerButton">Optimisation</button>
         <table id="optimizedTable">
     <thead>
         <tr>
@@ -801,8 +756,10 @@ nav ul li a {
             <th>Tranches Offre</th>
             <th>Charge Existante</th>
             <th>Fréquence Existante</th>
-            <th>Diagnostic avant optimisation</th> <!-- Nouvelle colonne -->
+             <th>Nb Rames Existante</th> <!-- Nouvelle colonne -->
+            <th>Diagnostic avant optimisation</th>
             <th>Fréquence Optimisée</th>
+            <th>Nb Rames Optimisée</th> <!-- Nouvelle colonne -->
             <th>Charge Optimisée</th>
             <th>Diagnostic après optimisation</th>
         </tr>
@@ -813,10 +770,12 @@ nav ul li a {
             <th><input type="text" placeholder="Filtrer Tranches Offre" oninput="filterTable('optimizedTable', 2)"></th>
             <th><input type="text" placeholder="Filtrer Charge Existante" oninput="filterTable('optimizedTable', 3)"></th>
             <th><input type="text" placeholder="Filtrer Fréquence Existante" oninput="filterTable('optimizedTable', 4)"></th>
-            <th><input type="text" placeholder="Filtrer Diagnostic avant optimisation" oninput="filterTable('optimizedTable', 5)"></th>
-            <th><input type="text" placeholder="Filtrer Fréquence Optimisée" oninput="filterTable('optimizedTable', 6)"></th>
-            <th><input type="text" placeholder="Filtrer Charge Optimisée" oninput="filterTable('optimizedTable', 7)"></th>
-            <th><input type="text" placeholder="Filtrer Diagnostic" oninput="filterTable('optimizedTable', 8)"></th>
+            <th><input type="text" placeholder="Filtrer Nb Rames" oninput="filterTable('optimizedTable', 5)"></th>
+            <th><input type="text" placeholder="Filtrer Diagnostic avant optimisation" oninput="filterTable('optimizedTable', 6)"></th>
+            <th><input type="text" placeholder="Filtrer Fréquence Optimisée" oninput="filterTable('optimizedTable', 7)"></th>
+            <th><input type="text" placeholder="Filtrer Nb Rames Optimisée" oninput="filterTable('optimizedTable', 8)"></th> <!-- Nouveau filtre -->
+            <th><input type="text" placeholder="Filtrer Charge Optimisée" oninput="filterTable('optimizedTable', 9)"></th>
+            <th><input type="text" placeholder="Filtrer Diagnostic" oninput="filterTable('optimizedTable', 10)"></th>
         </tr>
 
     </thead>
@@ -830,23 +789,11 @@ nav ul li a {
             <option value="CVI_SJG">CVI → SJG</option>
             <option value="SJG_CVI">SJG → CVI</option>
         </select>
-        <button id="graphButton" class="export-button">Afficher les Graphique</button> <!-- Nouveau bouton -->
+        <button id="graphButton" class="export-button">Afficher le Graphique</button> <!-- Nouveau bouton -->
         <div id="chartContainer"></div> <!-- Conteneur pour le graphique interactif -->
         <button class="export-button" onclick="exportTableToExcel('optimizedTable', 'Optimisation_Results')">Exporter vers Excel</button>
+        <button class="export-button" onclick="exportTableToPDF('optimizedTable', 'Optimisation_Results')">Exporter vers PDF</button>
     </div>
-<div id="additionalCharts" style="margin-top: 40px;">
-    <h2>Visualisations supplémentaires</h2>
-    <div style="display: flex; gap: 20px;">
-        <div style="flex: 1;">
-            <h3>Distribution des charges</h3>
-            <canvas id="chargeHistogram"></canvas>
-        </div>
-        <div style="flex: 1;">
-            <h3>Proportion des diagnostics</h3>
-            <canvas id="diagnosticPieChart"></canvas>
-        </div>
-    </div>
-</div>
 
 <!-- Boîte modale pour le filtre -->
 <div id="filterModal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); z-index: 1000;">
@@ -872,37 +819,35 @@ nav ul li a {
             document.getElementById('optimizerButton').addEventListener('click', optimizeData);
             // Ajouter un écouteur pour le bouton "Graphique"
     document.getElementById('graphButton').addEventListener('click', () => {
-    const data = extractDataForChart(); // Extraire les données du tableau filtrées par direction
-
-    // Récupérer la période sélectionnée
+    const data = extractDataForChart();
     const selectedPeriod = document.getElementById('sheet').value;
+    const chartTitle = `Visualisation de la charge et du nombre de rames - ${selectedPeriod}`;
 
-    // Créer le titre dynamique
-    const chartTitle = `Visualisation de la fréquence et de la charge existante et optimale - ${selectedPeriod}`;
-
-    // Créer les données pour le graphique Plotly
+    // Créer les données pour le graphique
     const chartData = [
-        // Aire pour la fréquence existante
+        // Aire pour le nombre de rames existantes
         {
             x: data.map(item => item.trancheHoraire),
-            y: data.map(item => item.frequenceExistante),
-            name: 'Fréquence Existante',
+            y: data.map(item => item.nbRamesExistante),
+            name: 'Nb Rames Existantes',
             type: 'scatter',
             mode: 'lines',
-            fill: 'tozeroy', // Aire remplie
-            line: { color: 'orange', width: 0 }, // Ligne invisible
-            yaxis: 'y2' // Deuxième axe Y
+            fill: 'tozeroy',
+            line: { color: 'rgba(128, 0, 128, 0.5)', width: 0 }, // Violet transparent
+            fillcolor: 'rgba(128, 0, 128, 0.2)',
+            yaxis: 'y2'
         },
-        // Aire pour la fréquence optimisée
+        // Aire pour le nombre de rames optimisées
         {
             x: data.map(item => item.trancheHoraire),
-            y: data.map(item => item.frequenceOptimisee),
-            name: 'Fréquence Optimisée',
+            y: data.map(item => item.nbRamesOptimisee),
+            name: 'Nb Rames Optimisées',
             type: 'scatter',
             mode: 'lines',
-            fill: 'tozeroy', // Aire remplie
-            line: { color: 'red', width: 0 }, // Ligne invisible
-            yaxis: 'y2' // Deuxième axe Y
+            fill: 'tozeroy',
+            line: { color: 'rgba(255, 165, 0, 0.5)', width: 0 }, // Orange transparent
+            fillcolor: 'rgba(255, 165, 0, 0.2)',
+            yaxis: 'y2'
         },
         // Courbe pour la charge existante
         {
@@ -912,7 +857,7 @@ nav ul li a {
             type: 'scatter',
             mode: 'lines',
             line: { color: 'blue', width: 2 },
-            yaxis: 'y1' // Premier axe Y
+            yaxis: 'y1'
         },
         // Courbe pour la charge optimisée
         {
@@ -922,13 +867,13 @@ nav ul li a {
             type: 'scatter',
             mode: 'lines',
             line: { color: 'green', width: 2 },
-            yaxis: 'y1' // Premier axe Y
+            yaxis: 'y1'
         }
     ];
 
-    // Définir la mise en page du graphique Plotly
+    // Définir la mise en page du graphique
     const layout = {
-        title: chartTitle, // Utiliser le titre dynamique
+        title: chartTitle,
         xaxis: { title: 'Tranche Horaire' },
         yaxis: {
             title: 'Charge',
@@ -936,28 +881,26 @@ nav ul li a {
             tickfont: { color: 'blue' }
         },
         yaxis2: {
-            title: 'Fréquence (minutes)',
-            titlefont: { color: 'orange' },
-            tickfont: { color: 'orange' },
-            overlaying: 'y', // Superposer au premier axe Y
-            side: 'right' // Placer à droite
+            title: 'Nombre de rames',
+            titlefont: { color: 'purple' },
+            tickfont: { color: 'purple' },
+            overlaying: 'y',
+            side: 'right'
         },
         legend: {
-            x: 0.5, // Centrer la légende horizontalement
-            y: 1.05, // Positionner la légende en dessous du titre (ajustez cette valeur pour l'espace)
-            orientation: 'h', // Légende horizontale
-            xanchor: 'center', // Ancrage au centre
-            yanchor: 'bottom' // Ancrage en bas
+            x: 0.5,
+            y: 1.05,
+            orientation: 'h',
+            xanchor: 'center',
+            yanchor: 'bottom'
         },
-        margin: { t: 80 } // Augmenter la marge supérieure pour éviter que le titre ne chevauche la légende
+        margin: { t: 80 }
     };
 
-    // Afficher le graphique Plotly
+    // Afficher le graphique
     Plotly.newPlot('chartContainer', chartData, layout);
-
-    // Afficher les graphiques supplémentaires (histogramme et camembert)
-    createAdditionalCharts(data);
 });
+
 
 
 
@@ -1066,7 +1009,9 @@ nav ul li a {
                 maxVoyageursCell.innerText = Math.round(parseFloat(diagnostic.max_voyageurs)); // Arrondir Max Voyageurs
 
                 const nbRamesCell = row.insertCell(3);
-                nbRamesCell.innerText = parseFloat(diagnostic.nb_rames).toFixed(1); // Un seul chiffre après la virgule
+                const nbRamesValue = parseFloat(diagnostic.nb_rames) || 0; // Un seul chiffre après la virgule
+                nbRamesCell.innerText = nbRamesValue.toFixed(1); // Force le format à 1 décimale
+                nbRamesCell.classList.add('nb-rames-exist');
 
                 const frequenceCell = row.insertCell(4);
                 frequenceCell.innerText = diagnostic.frequence || 'N/A';
@@ -1130,6 +1075,10 @@ nav ul li a {
     createOptimizationChart(surOffreData);
 }
 
+function isWeekendPeriod() {
+    const selectedSheet = document.getElementById('sheet').value.toLowerCase();
+    return selectedSheet.includes('samedi') || selectedSheet.includes('dimanche');
+}
 
 
 
@@ -1141,10 +1090,11 @@ nav ul li a {
     const coefHeures = parseInt(document.getElementById('coefHeures').value, 10) / 100; // Borne inférieure
     const coefHeuresSup = parseInt(document.getElementById('coefHeuresSup').value, 10) / 100; // Borne supérieure
 
-    const timeRanges = {
-        peak: [['07:00', '09:00'], ['16:00', '18:30']],
-        offPeak: [['00:00', '07:00'], ['09:00', '16:00'], ['18:30', '23:59']]
-    };
+   const timeRanges = {
+    peak: [['07:00', '09:00'], ['12:00', '13:00'], ['16:00', '18:30']], // Ajout de 12h-13h
+    offPeak: [['00:00', '07:00'], ['09:00', '12:00'], ['13:00', '16:00'], ['18:30', '23:59']]
+};
+
 
     // Fréquences disponibles (en hh:mm:ss)
     const peakFrequencies = [
@@ -1165,48 +1115,67 @@ nav ul li a {
         return false;
     }
 
-    function findBestFrequency(chargeExistante, frequenceExistanteMinutes, capaciteMax, availableFrequencies) {
-        let bestFrequency = null;
-        let bestCharge = chargeExistante;
-        let minDifference = Math.abs(chargeExistante - capaciteMax);
-        let bestFrequencyInAcceptance = null;
-        let bestChargeInAcceptance = chargeExistante;
-        let minDifferenceInAcceptance = Infinity;
+   function findBestFrequency(chargeExistante, frequenceExistanteMinutes, capaciteMax, availableFrequencies, trancheHoraire) {
+    let bestFrequency = null;
+    let bestCharge = chargeExistante;
+    let minDifferenceToSeuil = Infinity; // Différence minimale par rapport au seuil (capaciteMax)
+    let foundInTargetZone = false;
 
-        availableFrequencies.forEach(frequency => {
-            const frequencyInMinutes = convertTimeToMinutes(frequency);
-            const chargeOptimisee = (chargeExistante * frequencyInMinutes) / frequenceExistanteMinutes;
+    const borneInf = capaciteMax * coefHeures;
+    const borneSup = capaciteMax * (1 + coefHeuresSup);
 
-            const difference = Math.abs(chargeOptimisee - capaciteMax);
+    // Conversion pour vérification plage horaire
+    const heure = trancheHoraire.substring(0, 8);
+    const [h, m, s] = heure.split(':').map(Number);
+    const heureDec = h + m/60 + s/3600;
+    const isNightTime = heureDec >= 20.5 || heureDec <= 9;
 
-            // Vérifier si la charge optimisée est dans l'intervalle d'acceptation
-            const lowerBound = capaciteMax * coefHeures;
-            const upperBound = capaciteMax * (1 + coefHeuresSup);
+    availableFrequencies.forEach(frequency => {
+        // Exclusion de 00:05:55 en dehors des heures nocturnes
+        if (frequency === "00:05:55" && !isNightTime) return;
 
-            if (chargeOptimisee >= lowerBound && chargeOptimisee <= upperBound) {
-                if (difference < minDifferenceInAcceptance) {
-                    minDifferenceInAcceptance = difference;
-                    bestFrequencyInAcceptance = frequency;
-                    bestChargeInAcceptance = chargeOptimisee;
-                }
-            }
+        const [hFreq, mFreq, sFreq] = frequency.split(':').map(Number);
+        const freqMinutes = hFreq * 60 + mFreq + sFreq/60;
+        const chargeOptimisee = (chargeExistante * freqMinutes) / frequenceExistanteMinutes;
+        const differenceToSeuil = Math.abs(chargeOptimisee - capaciteMax);
 
-            // Garder la fréquence qui rapproche le plus la charge du seuil, même si elle est en dehors de l'intervalle
-            if (difference < minDifference) {
-                minDifference = difference;
+        // Critère principal : dans l'intervalle cible
+        const isInTargetZone = chargeOptimisee >= borneInf && chargeOptimisee <= borneSup;
+
+        // Si on trouve une fréquence dans la zone cible
+        if (isInTargetZone) {
+            foundInTargetZone = true;
+
+            // On prend celle qui se rapproche le plus du seuil (capaciteMax)
+            if (differenceToSeuil < minDifferenceToSeuil) {
+                minDifferenceToSeuil = differenceToSeuil;
                 bestFrequency = frequency;
                 bestCharge = chargeOptimisee;
             }
-        });
-
-        // Si une fréquence dans l'intervalle d'acceptation est trouvée, la retourner
-        if (bestFrequencyInAcceptance) {
-            return { bestFrequency: bestFrequencyInAcceptance, bestCharge: bestChargeInAcceptance };
         }
 
-        // Sinon, retourner la fréquence qui rapproche le plus la charge du seuil
-        return { bestFrequency, bestCharge };
-    }
+        // Si aucune fréquence n'est dans la zone cible, on prend la plus proche du seuil
+        if (!foundInTargetZone && differenceToSeuil < minDifferenceToSeuil) {
+            minDifferenceToSeuil = differenceToSeuil;
+            bestFrequency = frequency;
+            bestCharge = chargeOptimisee;
+        }
+    });
+
+    return {
+        bestFrequency: bestFrequency,
+        bestCharge: bestCharge,
+        isInTargetZone: foundInTargetZone
+    };
+}
+
+ const allFrequencies = [
+        "00:01:37", "00:01:40", "00:01:44", "00:01:49", "00:01:54", "00:01:58", "00:02:05",
+        "00:02:09", "00:02:15", "00:02:20", "00:02:22", "00:02:25", "00:02:32", "00:02:40",
+        "00:02:50", "00:03:00", "00:03:12", "00:03:26", "00:03:42", "00:04:00", "00:04:15",
+        "00:04:42", "00:05:20", "00:05:55"
+    ];
+
 
     return diagnosticRows.map(row => {
         const cells = row.getElementsByTagName('td');
@@ -1216,6 +1185,7 @@ nav ul li a {
         const trancheHoraire = cells[0].textContent.trim();
         const tranchesOffre = cells[1].textContent.trim();
         const maxVoyageurs = parseInt(cells[2].textContent.trim(), 10);
+        const nbRamesExistante = parseFloat(cells[3].textContent.trim().replace(',', '.')) || 0; // Récupérer le nombre de rames existantes
         const frequenceExistanteStr = cells[4].textContent.trim();
         const diagnosticAvantOptimisation = cells[5].textContent.trim(); // Récupérer le diagnostic
 
@@ -1250,17 +1220,38 @@ nav ul li a {
         const diagnosticTime = trancheHoraire.substring(0, 5);
         const capaciteMax = isInRange(diagnosticTime, timeRanges.peak) ? peakCapacity : offPeakCapacity;
 
-        // Determine available frequencies based on peak or off-peak hours
-        const availableFrequencies = isInRange(diagnosticTime, timeRanges.peak) ? peakFrequencies : offPeakFrequencies;
+
+        // Déterminer les fréquences disponibles
+        let availableFrequencies;
+        if (isWeekendPeriod()) {
+            // Si c'est un weekend, on utilise toutes les fréquences sans distinction
+            availableFrequencies = allFrequencies;
+        } else {
+            // Sinon, on utilise les fréquences selon peak/off-peak
+            availableFrequencies = isInRange(diagnosticTime, timeRanges.peak) ? peakFrequencies : offPeakFrequencies;
+        }
+
 
         // Trouver la meilleure fréquence pour rapprocher la charge optimisée du seuil
-        const { bestFrequency, bestCharge } = findBestFrequency(maxVoyageurs, frequenceExistanteMinutes, capaciteMax, availableFrequencies);
+        const { bestFrequency, bestCharge } = findBestFrequency(
+    maxVoyageurs,
+    frequenceExistanteMinutes,
+    capaciteMax,
+    availableFrequencies,
+    trancheHoraire // Bien passer la tranche horaire complète
+);
+
+
 
         // Déterminer le diagnostic après optimisation
         const lowerBound = capaciteMax * coefHeures;
         const upperBound = capaciteMax * (1 + coefHeuresSup);
         let diagnostic;
-        if (bestCharge >= lowerBound && bestCharge <= upperBound) {
+
+         // Utiliser une tolérance de 0.5 pour inclure 98.5
+        const tolerance = 0.5;
+
+        if (bestCharge >= lowerBound - tolerance && bestCharge <= upperBound + tolerance) {
             diagnostic = 'OK'; // Charge optimisée dans la plage acceptable
         } else if (bestCharge > upperBound) {
             diagnostic = 'Sous-offre'; // Charge optimisée dépasse la borne supérieure
@@ -1268,14 +1259,20 @@ nav ul li a {
             diagnostic = 'Sur-offre'; // Charge optimisée est en dessous de la borne inférieure
         }
 
+        // Calculer le nombre de rames optimisées
+    const frequenceOptimiseeMinutes = convertTimeToMinutes(bestFrequency || frequenceExistanteStr);
+    const nbRamesOptimisee = frequenceOptimiseeMinutes !== 0 ? (5 / frequenceOptimiseeMinutes).toFixed(1) : "N/A"; // 00:05:00 = 5 minutes
+
         return {
             direction,
             trancheHoraire,
             tranchesOffre,
             chargeExistante: maxVoyageurs,
             frequenceExistante: frequenceExistanteStr,
+            nbRamesExistante, // Ajouter le nombre de rames existantes
             diagnosticAvantOptimisation, // Ajouter le diagnostic avant optimisation
             frequenceOptimisee: bestFrequency || frequenceExistanteStr, // Utiliser la fréquence existante comme valeur par défaut
+            nbRamesOptimisee, // Ajouter le nombre de rames optimisées
             chargeOptimisee: bestCharge !== null ? bestCharge.toFixed(0) : maxVoyageurs, // Utiliser la charge existante comme valeur par défaut
             diagnostic: diagnostic
         };
@@ -1321,41 +1318,60 @@ function populateOptimizedTable(data) {
     data.forEach(item => {
         const row = optimizedTableBody.insertRow();
 
-        // Colonne "Direction" ajoutée avant Tranche Horaire
+        // Colonne "Direction"
         const directionCell = row.insertCell(0);
-        directionCell.innerText = item.direction === "Sens Aller" ? "sjg-->cvi" : "cvi-->sjg";
+        directionCell.innerText = item.direction === "Sens Aller" ? "sjg-->cvi(Aller)" : "cvi-->sjg(Retour)";
 
+        // Colonne "Tranche Horaire"
         const trancheCell = row.insertCell(1);
         trancheCell.innerText = item.trancheHoraire;
 
+        // Colonne "Tranches Offre"
         const offreCell = row.insertCell(2);
         offreCell.innerText = item.tranchesOffre;
 
+        // Colonne "Charge Existante"
         const chargeExistanteCell = row.insertCell(3);
         chargeExistanteCell.innerText = item.chargeExistante;
         chargeExistanteCell.classList.add('charge-exist');
 
+        // Colonne "Fréquence Existante"
         const freqExistanteCell = row.insertCell(4);
         freqExistanteCell.innerText = item.frequenceExistante;
         freqExistanteCell.classList.add('freq-exist');
 
-        // Nouvelle colonne "Diagnostic avant optimisation"
-        const diagnosticAvantCell = row.insertCell(5);
-        diagnosticAvantCell.innerText = item.diagnosticAvantOptimisation || "N/A"; // Afficher le diagnostic
-        diagnosticAvantCell.classList.add('diagnostic-avant'); // Ajouter une classe pour le style
+        // Colonne "Nb Rames Existante"
+        const nbRamesCell = row.insertCell(5);
+        nbRamesCell.innerText = item.nbRamesExistante || "N/A";
+        nbRamesCell.classList.add('nb-rames-exist');
 
-        const freqOptiCell = row.insertCell(6);
+        // Colonne "Diagnostic avant optimisation"
+        const diagnosticAvantCell = row.insertCell(6);
+        diagnosticAvantCell.innerText = item.diagnosticAvantOptimisation || "N/A";
+        diagnosticAvantCell.classList.add('diagnostic-avant');
+
+        // Colonne "Fréquence Optimisée"
+        const freqOptiCell = row.insertCell(7);
         freqOptiCell.innerText = item.frequenceOptimisee !== null ? item.frequenceOptimisee : "null";
         freqOptiCell.classList.add('freq-opti');
 
-        const chargeOptimiseeCell = row.insertCell(7);
+        // Nouvelle colonne "Nb Rames Optimisée"
+        const nbRamesOptiCell = row.insertCell(8);
+        nbRamesOptiCell.innerText = item.nbRamesOptimisee || "N/A"; // Afficher "N/A" si la valeur est manquante
+        nbRamesOptiCell.classList.add('nb-rames-opti');
+
+        // Colonne "Charge Optimisée"
+        const chargeOptimiseeCell = row.insertCell(9);
         chargeOptimiseeCell.innerText = item.chargeOptimisee;
         chargeOptimiseeCell.classList.add('charge-opti');
 
-        const diagnosticCell = row.insertCell(8);
+        // Colonne "Diagnostic après optimisation"
+        const diagnosticCell = row.insertCell(10);
         diagnosticCell.innerText = item.diagnostic;
     });
 }
+
+
 
 
 
@@ -1370,11 +1386,13 @@ function populateOptimizedTable(data) {
     const peakCapacity = parseInt(document.getElementById('peakCapacity').value, 10);
     const offPeakCapacity = parseInt(document.getElementById('offPeakCapacity').value, 10);
     const coefHeures = parseInt(document.getElementById('coefHeures').value, 10) / 100; // Convertir en décimal
+    const coefHeuresSup = parseInt(document.getElementById('coefHeuresSup').value, 10) / 100; // Convertir en décimal
 
     const timeRanges = {
-        peak: [['07:00', '09:00'], ['16:00', '18:30']],
-        offPeak: [['00:00', '07:00'], ['09:00', '16:00'], ['18:30', '23:59']]
-    };
+    peak: [['07:00', '09:00'], ['12:00', '13:00'], ['16:00', '18:30']], // Ajout de 12h-13h
+    offPeak: [['00:00', '07:00'], ['09:00', '12:00'], ['13:00', '16:00'], ['18:30', '23:59']]
+};
+
 
     function isInRange(time, ranges) {
         for (let range of ranges) {
@@ -1385,17 +1403,27 @@ function populateOptimizedTable(data) {
         return false;
     }
 
-    const capacity = isInRange(time, timeRanges.peak) ? peakCapacity : offPeakCapacity;
-    const lowerBound = capacity * coefHeures; // Calculer la borne inférieure
+    // Déterminer si c'est une heure de pointe ou creuse
+    const isPeak = isInRange(time, timeRanges.peak);
 
-    if (maxVoyageurs >= lowerBound && maxVoyageurs <= capacity) {
-        return 'OK'; // Nouveau diagnostic si dans la plage
-    } else if (maxVoyageurs > capacity) {
-        return 'Sous-offre';
+    // Calculer les bornes
+    const seuilMax = isPeak ? peakCapacity : offPeakCapacity;
+    const borneInf = coefHeures * seuilMax; // Borne inférieure
+    const borneSup = (1 + coefHeuresSup) * seuilMax; // Borne supérieure
+
+
+
+
+    // Déterminer le diagnostic
+    if (maxVoyageurs >= borneInf && maxVoyageurs <= borneSup) {
+        return 'OK'; // Charge dans l'intervalle acceptable
+    } else if (maxVoyageurs < borneInf) {
+        return 'Sur-offre'; // Charge en dessous de la borne inférieure
     } else {
-        return 'Sur-offre';
+        return 'Sous-offre'; // Charge au-dessus de la borne supérieure
     }
 }
+
 
 
 
@@ -1583,25 +1611,22 @@ function convertDurationToMinutes(duration) {
 
     rows.forEach(row => {
         const cells = row.querySelectorAll('td');
-        if (cells.length >= 9) { // Vérifier que la ligne contient des données (9 colonnes maintenant)
-            const rowDirection = cells[0].textContent.trim(); // La direction est dans la première colonne
+        if (cells.length >= 9) {
+            const rowDirection = cells[0].textContent.trim();
             const trancheHoraire = cells[1].textContent.trim();
-            const chargeExistante = parseFloat(cells[3].textContent.trim()); // Charge Existante à l'indice 3
-            const chargeOptimisee = parseFloat(cells[7].textContent.trim()); // Charge Optimisée à l'indice 7
-            const frequenceExistante = convertDurationToMinutes(cells[4].textContent.trim()); // Fréquence Existante à l'indice 4
-            const frequenceOptimisee = convertDurationToMinutes(cells[6].textContent.trim()); // Fréquence Optimisée à l'indice 6
+            const chargeExistante = parseFloat(cells[3].textContent.trim());
+            const chargeOptimisee = parseFloat(cells[9].textContent.trim()); // Charge Optimisée à l'indice 9 maintenant
+            const nbRamesExistante = parseFloat(cells[5].textContent.trim()) || 0; // Nb Rames Existante à l'indice 5
+            const nbRamesOptimisee = parseFloat(cells[8].textContent.trim()) || 0; // Nb Rames Optimisée à l'indice 8
 
-            // Filtrer les données en fonction de la direction
-            if (
-                (direction === "CVI_SJG" && rowDirection === "cvi-->sjg") ||
-                (direction === "SJG_CVI" && rowDirection === "sjg-->cvi")
-            ) {
+            if ((direction === "CVI_SJG" && rowDirection === "cvi-->sjg(Retour)") ||
+                (direction === "SJG_CVI" && rowDirection === "sjg-->cvi(Aller)")) {
                 data.push({
                     trancheHoraire,
                     chargeExistante,
                     chargeOptimisee,
-                    frequenceExistante,
-                    frequenceOptimisee
+                    nbRamesExistante,
+                    nbRamesOptimisee
                 });
             }
         }
@@ -1609,6 +1634,7 @@ function convertDurationToMinutes(duration) {
 
     return data;
 }
+
 
 
 
@@ -1682,8 +1708,6 @@ function openFilterModal(tableId, columnIndex) {
     // Afficher la boîte modale
     document.getElementById('filterModal').style.display = 'block';
 }
-
-
 
 
 
@@ -1785,126 +1809,101 @@ document.getElementById('cancelFilterButton').addEventListener('click', closeFil
         input.value = '';
     });
 }
-        function createChargeHistogram(data) {
-    const tranchesHoraires = data.map(item => item.trancheHoraire); // Récupérer les tranches horaires
-    const charges = data.map(item => item.chargeExistante); // Récupérer les charges existantes
-    const ctx = document.getElementById('chargeHistogram').getContext('2d');
+function exportTableToPDF(tableId, filename = '') {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('p', 'pt', 'a4');
+    const table = document.getElementById(tableId);
 
-    new Chart(ctx, {
-        type: 'bar', // Type de graphique : histogramme
-        data: {
-            labels: tranchesHoraires, // Utiliser les tranches horaires comme étiquettes
-            datasets: [{
-                label: 'Charge Existante',
-                data: charges, // Données pour l'axe Y
-                backgroundColor: 'rgba(75, 192, 192, 0.2)', // Couleur des barres
-                borderColor: 'rgba(75, 192, 192, 1)', // Couleur des bordures
-                borderWidth: 1
-            }]
-        },
-        options: {
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Charge'
-                    }
-                },
-                x: {
-                    title: {
-                        display: true,
-                        text: 'Tranches horaires'
-                    }
-                }
-            },
-            plugins: {
-                datalabels: { // Afficher les valeurs sur les barres
-                    anchor: 'end',
-                    align: 'top',
-                    formatter: (value) => `${value}`, // Afficher la valeur exacte
-                    color: 'black',
-                    font: {
-                        weight: 'bold'
-                    }
-                }
-            }
-        }
+    // Créer un indicateur de chargement
+    const loadingIndicator = document.createElement('div');
+    loadingIndicator.innerHTML = `
+        <div style="
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 24px;
+        ">
+            Génération du PDF en cours... Veuillez patienter.
+        </div>
+    `;
+    document.body.appendChild(loadingIndicator);
+
+    // Cloner le tableau pour le traitement
+    const tableClone = table.cloneNode(true);
+
+    // Appliquer des styles optimisés pour l'export
+    tableClone.style.width = '100%';
+    tableClone.style.position = 'absolute';
+    tableClone.style.left = '-9999px';
+    tableClone.style.top = '0';
+    tableClone.style.visibility = 'visible';
+
+    // Ajuster les styles pour l'export
+    const cells = tableClone.querySelectorAll('th, td');
+    cells.forEach(cell => {
+        cell.style.padding = '5px';
+        cell.style.fontSize = '10px';
     });
-}
 
-function createDiagnosticPieChart(data) {
-    const diagnostics = data.map(item => item.diagnostic); // Récupérer les diagnostics
-    const diagnosticCounts = {
-        'Sur-offre': diagnostics.filter(d => d === 'Sur-offre').length,
-        'Sous-offre': diagnostics.filter(d => d === 'Sous-offre').length,
-        'OK': diagnostics.filter(d => d === 'OK').length
+    document.body.appendChild(tableClone);
+
+    // Options pour html2canvas
+    const options = {
+        scale: 2,
+        scrollX: 0,
+        scrollY: 0,
+        windowWidth: tableClone.scrollWidth,
+        windowHeight: tableClone.scrollHeight,
+        useCORS: true,
+        allowTaint: true,
+        logging: true
     };
 
-    const total = Object.values(diagnosticCounts).reduce((acc, val) => acc + val, 0); // Calculer le total
-    const percentages = {
-        'Sur-offre': ((diagnosticCounts['Sur-offre'] / total) * 100).toFixed(2) + '%',
-        'Sous-offre': ((diagnosticCounts['Sous-offre'] / total) * 100).toFixed(2) + '%',
-        'OK': ((diagnosticCounts['OK'] / total) * 100).toFixed(2) + '%'
-    };
+    html2canvas(tableClone, options).then(canvas => {
+        const imgData = canvas.toDataURL('image/png');
+        const imgWidth = doc.internal.pageSize.getWidth() - 20;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-    const ctx = document.getElementById('diagnosticPieChart').getContext('2d');
+        // Calculer le nombre de pages nécessaires
+        const pageHeight = doc.internal.pageSize.getHeight() - 20;
+        let heightLeft = imgHeight;
+        let position = 10;
+        let pageNumber = 1;
 
-    new Chart(ctx, {
-        type: 'pie', // Type de graphique : camembert
-        data: {
-            labels: Object.keys(diagnosticCounts).map(key => `${key} (${percentages[key]})`), // Ajouter les pourcentages aux étiquettes
-            datasets: [{
-                label: 'Proportion des diagnostics',
-                data: Object.values(diagnosticCounts), // Données pour les segments
-                backgroundColor: [
-                    'rgba(255, 99, 132, 0.2)', // Couleur pour "Sur-offre"
-                    'rgba(54, 162, 235, 0.2)', // Couleur pour "Sous-offre"
-                    'rgba(75, 192, 192, 0.2)'  // Couleur pour "OK"
-                ],
-                borderColor: [
-                    'rgba(255, 99, 132, 1)',
-                    'rgba(54, 162, 235, 1)',
-                    'rgba(75, 192, 192, 1)'
-                ],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'top', // Position de la légende
-                },
-                title: {
-                    display: true,
-                    text: 'Proportion des diagnostics'
-                },
-                datalabels: { // Afficher les pourcentages sur les segments
-                    formatter: (value, context) => {
-                        const label = context.chart.data.labels[context.dataIndex];
-                        return label;
-                    },
-                    color: 'black',
-                    font: {
-                        weight: 'bold'
-                    }
-                }
-            }
+        // Première page
+        doc.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+
+        // Pages supplémentaires si nécessaire
+        while (heightLeft >= 0) {
+            doc.addPage();
+            position = heightLeft - imgHeight;
+            doc.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+            heightLeft -= pageHeight;
+            pageNumber++;
         }
+
+        // Enregistrer le PDF
+        doc.save(filename + '.pdf');
+
+        // Nettoyer
+        document.body.removeChild(tableClone);
+        document.body.removeChild(loadingIndicator);
+    }).catch(error => {
+        console.error("Erreur:", error);
+        alert("Erreur lors de la génération du PDF: " + error.message);
+        document.body.removeChild(tableClone);
+        document.body.removeChild(loadingIndicator);
     });
 }
-
-function createAdditionalCharts(data) {
-    createChargeHistogram(data); // Créer l'histogramme
-    createDiagnosticPieChart(data); // Créer le camembert
-}
-
-// Exemple d'utilisation
-document.getElementById('optimizerButton').addEventListener('click', () => {
-    const optimizedData = extractAndOptimizeData(diagnosticRows); // Récupérer les données optimisées
-    createAdditionalCharts(optimizedData); // Créer les graphiques supplémentaires
-});
 
 
     </script>
