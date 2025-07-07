@@ -638,6 +638,200 @@ nav ul li a:active {
         padding: 8px !important;
     }
 }
+/* Nouveau style pour la gestion des fréquences */
+#frequencyManagement {
+    margin: 30px auto;
+    max-width: 800px;
+    padding: 25px;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%);
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    border: 1px solid rgba(255,255,255,0.3);
+    backdrop-filter: blur(5px);
+    animation: fadeInUp 0.6s ease-out;
+}
+
+#frequencyManagement h2 {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 25px;
+    font-size: 28px;
+    font-weight: 600;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    position: relative;
+    padding-bottom: 10px;
+}
+
+#frequencyManagement h2::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 3px;
+    background: linear-gradient(to right, #66a5ad, #86acaa);
+    border-radius: 3px;
+}
+
+.frequency-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+}
+
+.frequency-column {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid rgba(0,0,0,0.05);
+}
+
+.frequency-column:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+}
+
+.frequency-column h3 {
+    color: #34495e;
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 18px;
+    text-align: center;
+    padding-bottom: 10px;
+    border-bottom: 1px dashed #ddd;
+}
+
+.frequency-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 15px 0;
+    max-height: 200px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #66a5ad #f1f1f1;
+}
+
+.frequency-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.frequency-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.frequency-list::-webkit-scrollbar-thumb {
+    background-color: #66a5ad;
+    border-radius: 10px;
+}
+
+.frequency-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    margin-bottom: 8px;
+    background: rgba(102, 165, 173, 0.1);
+    border-radius: 6px;
+    border-left: 3px solid #66a5ad;
+    transition: all 0.2s ease;
+}
+
+.frequency-list li:hover {
+    background: rgba(102, 165, 173, 0.2);
+    transform: translateX(3px);
+}
+
+.frequency-list li button {
+    background: #ff6b6b;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 2px 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.frequency-list li button:hover {
+    background: #ff5252;
+    transform: scale(1.1);
+}
+
+.frequency-input-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.frequency-input-group input {
+    flex: 1;
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border-color 0.3s;
+}
+
+.frequency-input-group input:focus {
+    outline: none;
+    border-color: #66a5ad;
+    box-shadow: 0 0 0 2px rgba(102, 165, 173, 0.2);
+}
+
+.frequency-input-group button {
+    padding: 10px 20px;
+    background: linear-gradient(to right, #66a5ad, #86acaa);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.frequency-input-group button:hover {
+    background: linear-gradient(to right, #5a99a1, #7a9c9a);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+#saveFrequenciesBtn {
+    display: block;
+    width: 200px;
+    margin: 25px auto 0;
+    padding: 12px;
+    background: linear-gradient(to right, #2c3e50, #4a6278);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+#saveFrequenciesBtn:hover {
+    background: linear-gradient(to right, #1a252f, #34495e);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+
+/* Animation */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 
 
 
@@ -703,6 +897,33 @@ nav ul li a:active {
         <div>
     <label for="coefHeuresSup">Coefficient Heures Supérieur (%):</label>
     <input type="number" id="coefHeuresSup" value="5" min="0" max="100" required>
+</div>
+
+<!-- Ajoutez cette section après le formulaire principal -->
+<div id="frequencyManagement">
+    <h2>Gestion des Fréquences</h2>
+    <div class="frequency-grid">
+        <!-- Heures de Pointe -->
+        <div class="frequency-column">
+            <h3>Heures de Pointe</h3>
+            <ul id="peakFrequenciesList" class="frequency-list"></ul>
+            <div class="frequency-input-group">
+                <input type="time" id="newPeakFrequency" step="1" min="00:01:00" max="00:10:00">
+                <button type="button" onclick="addFrequency('peak')">Ajouter</button>
+            </div>
+        </div>
+
+        <!-- Heures Creuses -->
+        <div class="frequency-column">
+            <h3>Heures Creuses</h3>
+            <ul id="offPeakFrequenciesList" class="frequency-list"></ul>
+            <div class="frequency-input-group">
+                <input type="time" id="newOffPeakFrequency" step="1" min="00:01:00" max="00:10:00">
+                <button type="button" onclick="addFrequency('offPeak')">Ajouter</button>
+            </div>
+        </div>
+    </div>
+    <button id="saveFrequenciesBtn" type="button" onclick="saveFrequencies()">Sauvegarder les Fréquences</button>
 </div>
 
 
@@ -810,6 +1031,7 @@ nav ul li a:active {
     </div>
 </div>
 
+
     <script>
         /* script.js */
         document.addEventListener('DOMContentLoaded', () => {
@@ -817,11 +1039,17 @@ nav ul li a:active {
             document.getElementById('firstFile').addEventListener('change', handleFirstFileChange);
             document.getElementById('diagnosticButton').addEventListener('click', processFiles);
             document.getElementById('optimizerButton').addEventListener('click', optimizeData);
-            // Ajouter un écouteur pour le bouton "Graphique"
-    document.getElementById('graphButton').addEventListener('click', () => {
+            document.getElementById('graphButton').addEventListener('click', () => {
+
     const data = extractDataForChart();
     const selectedPeriod = document.getElementById('sheet').value;
-    const chartTitle = `Visualisation de la charge et du nombre de rames - ${selectedPeriod}`;
+    const selectedDirection = document.getElementById('directionSelect').value;
+    const directionText = selectedDirection === "CVI_SJG" ? "CVI → SJG" : "SJG → CVI";
+    const chartTitle = `Visualisation de la charge et du nombre de rames - ${selectedPeriod} - ${directionText}`;
+
+    // Supprimer l'ancien graphique s'il existe
+    const chartContainer = document.getElementById('chartContainer');
+    chartContainer.innerHTML = '';
 
     // Créer les données pour le graphique
     const chartData = [
@@ -833,7 +1061,7 @@ nav ul li a:active {
             type: 'scatter',
             mode: 'lines',
             fill: 'tozeroy',
-            line: { color: 'rgba(128, 0, 128, 0.5)', width: 0 }, // Violet transparent
+            line: { color: 'rgba(128, 0, 128, 0.5)', width: 0 },
             fillcolor: 'rgba(128, 0, 128, 0.2)',
             yaxis: 'y2'
         },
@@ -845,7 +1073,7 @@ nav ul li a:active {
             type: 'scatter',
             mode: 'lines',
             fill: 'tozeroy',
-            line: { color: 'rgba(255, 165, 0, 0.5)', width: 0 }, // Orange transparent
+            line: { color: 'rgba(255, 165, 0, 0.5)', width: 0 },
             fillcolor: 'rgba(255, 165, 0, 0.2)',
             yaxis: 'y2'
         },
@@ -900,6 +1128,7 @@ nav ul li a:active {
     // Afficher le graphique
     Plotly.newPlot('chartContainer', chartData, layout);
 });
+
 
 
 
@@ -1087,109 +1316,79 @@ function isWeekendPeriod() {
            function extractAndOptimizeData(diagnosticRows) {
     const peakCapacity = parseInt(document.getElementById('peakCapacity').value, 10);
     const offPeakCapacity = parseInt(document.getElementById('offPeakCapacity').value, 10);
-    const coefHeures = parseInt(document.getElementById('coefHeures').value, 10) / 100; // Borne inférieure
-    const coefHeuresSup = parseInt(document.getElementById('coefHeuresSup').value, 10) / 100; // Borne supérieure
+    const coefHeures = parseInt(document.getElementById('coefHeures').value, 10) / 100;
+    const coefHeuresSup = parseInt(document.getElementById('coefHeuresSup').value, 10) / 100;
 
-   const timeRanges = {
-    peak: [['07:00', '09:00'], ['12:00', '13:00'], ['16:00', '18:30']], // Ajout de 12h-13h
-    offPeak: [['00:00', '07:00'], ['09:00', '12:00'], ['13:00', '16:00'], ['18:30', '23:59']]
-};
+    const timeRanges = {
+        peak: [['07:00', '09:00'], ['12:00', '13:00'], ['16:00', '18:30']],
+        offPeak: [['00:00', '07:00'], ['09:00', '12:00'], ['13:00', '16:00'], ['18:30', '23:59']]
+    };
 
-
-    // Fréquences disponibles (en hh:mm:ss)
-    const peakFrequencies = [
-        "00:01:37", "00:01:40", "00:01:44", "00:01:49", "00:01:54", "00:01:58", "00:02:05",
-        "00:02:09", "00:02:15", "00:02:20", "00:02:22", "00:02:25", "00:02:32", "00:02:40", "00:02:50", "00:03:00"
-    ];
-    const offPeakFrequencies = [
-        "00:02:05", "00:02:09", "00:02:15", "00:02:20", "00:02:22", "00:02:25", "00:02:32", "00:02:40", "00:02:50", "00:03:00", "00:03:12",
-        "00:03:26", "00:03:42", "00:04:00", "00:04:15", "00:04:42", "00:05:20", "00:05:55"
-    ];
-
-    function isInRange(time, ranges) {
-        for (let range of ranges) {
-            if (time >= range[0] && time <= range[1]) {
-                return true;
-            }
-        }
-        return false;
+    // Fonction pour vérifier si une heure est en plage de pointe
+    function isPeakHour(time) {
+        return timeRanges.peak.some(([start, end]) => time >= start && time <= end);
     }
 
-   function findBestFrequency(chargeExistante, frequenceExistanteMinutes, capaciteMax, availableFrequencies, trancheHoraire) {
-    let bestFrequency = null;
-    let bestCharge = chargeExistante;
-    let minDifferenceToSeuil = Infinity; // Différence minimale par rapport au seuil (capaciteMax)
-    let foundInTargetZone = false;
+    // Fonction pour trouver la meilleure fréquence
+    function findBestFrequency(chargeExistante, frequenceExistanteMinutes, capaciteMax, availableFrequencies, trancheHoraire) {
+        let bestFrequency = null;
+        let bestCharge = chargeExistante;
+        let minDifferenceToSeuil = Infinity;
+        let foundInTargetZone = false;
 
-    const borneInf = capaciteMax * coefHeures;
-    const borneSup = capaciteMax * (1 + coefHeuresSup);
+        const borneInf = capaciteMax * coefHeures;
+        const borneSup = capaciteMax * (1 + coefHeuresSup);
 
-    // Conversion pour vérification plage horaire
-    const heure = trancheHoraire.substring(0, 8);
-    const [h, m, s] = heure.split(':').map(Number);
-    const heureDec = h + m/60 + s/3600;
-    const isNightTime = heureDec >= 20.5 || heureDec <= 9;
+        const heure = trancheHoraire.substring(0, 8);
+        const [h, m, s] = heure.split(':').map(Number);
+        const heureDec = h + m / 60 + s / 3600;
+        const isNightTime = heureDec >= 20.5 || heureDec <= 9;
 
-    availableFrequencies.forEach(frequency => {
-        // Exclusion de 00:05:55 en dehors des heures nocturnes
-        if (frequency === "00:05:55" && !isNightTime) return;
+        availableFrequencies.forEach(frequency => {
+            if (frequency === "00:05:55" && !isNightTime) return;
 
-        const [hFreq, mFreq, sFreq] = frequency.split(':').map(Number);
-        const freqMinutes = hFreq * 60 + mFreq + sFreq/60;
-        const chargeOptimisee = (chargeExistante * freqMinutes) / frequenceExistanteMinutes;
-        const differenceToSeuil = Math.abs(chargeOptimisee - capaciteMax);
+            const [hFreq, mFreq, sFreq] = frequency.split(':').map(Number);
+            const freqMinutes = hFreq * 60 + mFreq + sFreq / 60;
+            const chargeOptimisee = (chargeExistante * freqMinutes) / frequenceExistanteMinutes;
+            const differenceToSeuil = Math.abs(chargeOptimisee - capaciteMax);
 
-        // Critère principal : dans l'intervalle cible
-        const isInTargetZone = chargeOptimisee >= borneInf && chargeOptimisee <= borneSup;
+            const isInTargetZone = chargeOptimisee >= borneInf && chargeOptimisee <= borneSup;
 
-        // Si on trouve une fréquence dans la zone cible
-        if (isInTargetZone) {
-            foundInTargetZone = true;
+            if (isInTargetZone) {
+                foundInTargetZone = true;
+                if (differenceToSeuil < minDifferenceToSeuil) {
+                    minDifferenceToSeuil = differenceToSeuil;
+                    bestFrequency = frequency;
+                    bestCharge = chargeOptimisee;
+                }
+            }
 
-            // On prend celle qui se rapproche le plus du seuil (capaciteMax)
-            if (differenceToSeuil < minDifferenceToSeuil) {
+            if (!foundInTargetZone && differenceToSeuil < minDifferenceToSeuil) {
                 minDifferenceToSeuil = differenceToSeuil;
                 bestFrequency = frequency;
                 bestCharge = chargeOptimisee;
             }
-        }
+        });
 
-        // Si aucune fréquence n'est dans la zone cible, on prend la plus proche du seuil
-        if (!foundInTargetZone && differenceToSeuil < minDifferenceToSeuil) {
-            minDifferenceToSeuil = differenceToSeuil;
-            bestFrequency = frequency;
-            bestCharge = chargeOptimisee;
-        }
-    });
-
-    return {
-        bestFrequency: bestFrequency,
-        bestCharge: bestCharge,
-        isInTargetZone: foundInTargetZone
-    };
-}
-
- const allFrequencies = [
-        "00:01:37", "00:01:40", "00:01:44", "00:01:49", "00:01:54", "00:01:58", "00:02:05",
-        "00:02:09", "00:02:15", "00:02:20", "00:02:22", "00:02:25", "00:02:32", "00:02:40",
-        "00:02:50", "00:03:00", "00:03:12", "00:03:26", "00:03:42", "00:04:00", "00:04:15",
-        "00:04:42", "00:05:20", "00:05:55"
-    ];
-
+        return {
+            bestFrequency: bestFrequency,
+            bestCharge: bestCharge,
+            isInTargetZone: foundInTargetZone
+        };
+    }
 
     return diagnosticRows.map(row => {
         const cells = row.getElementsByTagName('td');
-        if (cells.length < 6) return null; // Ignorer les lignes invalides
+        if (cells.length < 6) return null;
 
         const direction = row.dataset.direction;
         const trancheHoraire = cells[0].textContent.trim();
         const tranchesOffre = cells[1].textContent.trim();
         const maxVoyageurs = parseInt(cells[2].textContent.trim(), 10);
-        const nbRamesExistante = parseFloat(cells[3].textContent.trim().replace(',', '.')) || 0; // Récupérer le nombre de rames existantes
+        const nbRamesExistante = parseFloat(cells[3].textContent.trim().replace(',', '.')) || 0;
         const frequenceExistanteStr = cells[4].textContent.trim();
-        const diagnosticAvantOptimisation = cells[5].textContent.trim(); // Récupérer le diagnostic
+        const diagnosticAvantOptimisation = cells[5].textContent.trim();
 
-        // Vérifier que la fréquence existante et la charge existante sont valides
         if (!frequenceExistanteStr || frequenceExistanteStr === "0" || maxVoyageurs <= 0) {
             return {
                 direction,
@@ -1197,8 +1396,8 @@ function isWeekendPeriod() {
                 tranchesOffre,
                 chargeExistante: maxVoyageurs,
                 frequenceExistante: frequenceExistanteStr,
-                frequenceOptimisee: frequenceExistanteStr, // Utiliser la fréquence existante comme valeur par défaut
-                chargeOptimisee: maxVoyageurs, // Utiliser la charge existante comme valeur par défaut
+                frequenceOptimisee: frequenceExistanteStr,
+                chargeOptimisee: maxVoyageurs,
                 diagnostic: 'N/A'
             };
         }
@@ -1211,57 +1410,48 @@ function isWeekendPeriod() {
                 tranchesOffre,
                 chargeExistante: maxVoyageurs,
                 frequenceExistante: frequenceExistanteStr,
-                frequenceOptimisee: frequenceExistanteStr, // Utiliser la fréquence existante comme valeur par défaut
-                chargeOptimisee: maxVoyageurs, // Utiliser la charge existante comme valeur par défaut
+                frequenceOptimisee: frequenceExistanteStr,
+                chargeOptimisee: maxVoyageurs,
                 diagnostic: 'N/A'
             };
         }
 
         const diagnosticTime = trancheHoraire.substring(0, 5);
-        const capaciteMax = isInRange(diagnosticTime, timeRanges.peak) ? peakCapacity : offPeakCapacity;
+        const capaciteMax = isPeakHour(diagnosticTime) ? peakCapacity : offPeakCapacity;
 
+        // Choix des fréquences selon l'horaire
+        const availableFrequencies = isPeakHour(diagnosticTime) ? frequencies.peak : frequencies.offPeak;
 
-        // Déterminer les fréquences disponibles
-        let availableFrequencies;
-        if (isWeekendPeriod()) {
-            // Si c'est un weekend, on utilise toutes les fréquences sans distinction
-            availableFrequencies = allFrequencies;
-        } else {
-            // Sinon, on utilise les fréquences selon peak/off-peak
-            availableFrequencies = isInRange(diagnosticTime, timeRanges.peak) ? peakFrequencies : offPeakFrequencies;
-        }
+        // Débogage : Afficher les fréquences utilisées
+        console.log(
+            `Tranche: ${trancheHoraire} | Heure: ${diagnosticTime} | Type: ${isPeakHour(diagnosticTime) ? 'POINTE' : 'CREUSE'} | Fréquences utilisées:`,
+            availableFrequencies
+        );
 
-
-        // Trouver la meilleure fréquence pour rapprocher la charge optimisée du seuil
         const { bestFrequency, bestCharge } = findBestFrequency(
-    maxVoyageurs,
-    frequenceExistanteMinutes,
-    capaciteMax,
-    availableFrequencies,
-    trancheHoraire // Bien passer la tranche horaire complète
-);
+            maxVoyageurs,
+            frequenceExistanteMinutes,
+            capaciteMax,
+            availableFrequencies,
+            trancheHoraire
+        );
 
-
-
-        // Déterminer le diagnostic après optimisation
         const lowerBound = capaciteMax * coefHeures;
         const upperBound = capaciteMax * (1 + coefHeuresSup);
         let diagnostic;
 
-         // Utiliser une tolérance de 0.5 pour inclure 98.5
         const tolerance = 0.5;
 
         if (bestCharge >= lowerBound - tolerance && bestCharge <= upperBound + tolerance) {
-            diagnostic = 'OK'; // Charge optimisée dans la plage acceptable
+            diagnostic = 'OK';
         } else if (bestCharge > upperBound) {
-            diagnostic = 'Sous-offre'; // Charge optimisée dépasse la borne supérieure
+            diagnostic = 'Sous-offre';
         } else {
-            diagnostic = 'Sur-offre'; // Charge optimisée est en dessous de la borne inférieure
+            diagnostic = 'Sur-offre';
         }
 
-        // Calculer le nombre de rames optimisées
-    const frequenceOptimiseeMinutes = convertTimeToMinutes(bestFrequency || frequenceExistanteStr);
-    const nbRamesOptimisee = frequenceOptimiseeMinutes !== 0 ? (5 / frequenceOptimiseeMinutes).toFixed(1) : "N/A"; // 00:05:00 = 5 minutes
+        const frequenceOptimiseeMinutes = convertTimeToMinutes(bestFrequency || frequenceExistanteStr);
+        const nbRamesOptimisee = frequenceOptimiseeMinutes !== 0 ? (5 / frequenceOptimiseeMinutes).toFixed(1) : "N/A";
 
         return {
             direction,
@@ -1269,15 +1459,17 @@ function isWeekendPeriod() {
             tranchesOffre,
             chargeExistante: maxVoyageurs,
             frequenceExistante: frequenceExistanteStr,
-            nbRamesExistante, // Ajouter le nombre de rames existantes
-            diagnosticAvantOptimisation, // Ajouter le diagnostic avant optimisation
-            frequenceOptimisee: bestFrequency || frequenceExistanteStr, // Utiliser la fréquence existante comme valeur par défaut
-            nbRamesOptimisee, // Ajouter le nombre de rames optimisées
-            chargeOptimisee: bestCharge !== null ? bestCharge.toFixed(0) : maxVoyageurs, // Utiliser la charge existante comme valeur par défaut
+            nbRamesExistante,
+            diagnosticAvantOptimisation,
+            frequenceOptimisee: bestFrequency || frequenceExistanteStr,
+            nbRamesOptimisee,
+            chargeOptimisee: bestCharge !== null ? bestCharge.toFixed(0) : maxVoyageurs,
             diagnostic: diagnostic
         };
-    }).filter(Boolean); // Supprimer les entrées null
+    }).filter(Boolean);
 }
+
+
 
 
 
@@ -1309,7 +1501,6 @@ function isWeekendPeriod() {
                 ].join(':');
             }
 
-            // Fonction pour peupler le tableau optimisé
             // Fonction pour peupler le tableau optimisé
 function populateOptimizedTable(data) {
     const optimizedTableBody = document.getElementById('optimizedTable').querySelector("tbody");
@@ -1370,16 +1561,6 @@ function populateOptimizedTable(data) {
         diagnosticCell.innerText = item.diagnostic;
     });
 }
-
-
-
-
-
-
-
-
-
-
 
             // Fonction pour obtenir le diagnostic
             function getDiagnosis(maxVoyageurs, time) {
@@ -1605,9 +1786,8 @@ function convertDurationToMinutes(duration) {
     const table = document.getElementById('optimizedTable');
     const rows = table.querySelectorAll('tbody tr');
     const data = [];
-
-    // Récupérer la direction choisie
-    const direction = document.getElementById('directionSelect').value;
+    const directionSelect = document.getElementById('directionSelect');
+    const selectedDirection = directionSelect.value;
 
     rows.forEach(row => {
         const cells = row.querySelectorAll('td');
@@ -1615,12 +1795,13 @@ function convertDurationToMinutes(duration) {
             const rowDirection = cells[0].textContent.trim();
             const trancheHoraire = cells[1].textContent.trim();
             const chargeExistante = parseFloat(cells[3].textContent.trim());
-            const chargeOptimisee = parseFloat(cells[9].textContent.trim()); // Charge Optimisée à l'indice 9 maintenant
-            const nbRamesExistante = parseFloat(cells[5].textContent.trim()) || 0; // Nb Rames Existante à l'indice 5
-            const nbRamesOptimisee = parseFloat(cells[8].textContent.trim()) || 0; // Nb Rames Optimisée à l'indice 8
+            const chargeOptimisee = parseFloat(cells[9].textContent.trim());
+            const nbRamesExistante = parseFloat(cells[5].textContent.trim()) || 0;
+            const nbRamesOptimisee = parseFloat(cells[8].textContent.trim()) || 0;
 
-            if ((direction === "CVI_SJG" && rowDirection === "cvi-->sjg(Retour)") ||
-                (direction === "SJG_CVI" && rowDirection === "sjg-->cvi(Aller)")) {
+            // Filtrer selon la direction sélectionnée
+            if ((selectedDirection === "CVI_SJG" && rowDirection === "cvi-->sjg(Retour)") ||
+                (selectedDirection === "SJG_CVI" && rowDirection === "sjg-->cvi(Aller)")) {
                 data.push({
                     trancheHoraire,
                     chargeExistante,
@@ -1634,6 +1815,7 @@ function convertDurationToMinutes(duration) {
 
     return data;
 }
+
 
 
 
@@ -1905,6 +2087,56 @@ function exportTableToPDF(tableId, filename = '') {
     });
 }
 
+// ============ GESTION DES FRÉQUENCES ============
+let frequencies = {
+    peak: ["00:01:37", "00:01:40", "00:01:44", "00:01:49", "00:01:54", "00:01:58", "00:02:05", "00:02:09", "00:02:15", "00:02:20", "00:02:22", "00:02:25", "00:02:32", "00:02:40", "00:02:50", "00:03:00"],
+    offPeak: ["00:02:05", "00:02:09", "00:02:15", "00:02:20", "00:02:22", "00:02:25", "00:02:32", "00:02:40", "00:02:50", "00:03:00", "00:03:12", "00:03:26", "00:03:42", "00:04:00", "00:04:15", "00:04:42", "00:05:20", "00:05:55"]
+};
+
+function loadFrequencies() {
+    const savedFrequencies = localStorage.getItem('frequencies');
+    if (savedFrequencies) frequencies = JSON.parse(savedFrequencies);
+    renderFrequencies();
+}
+
+function renderFrequencies() {
+    renderFrequencyList('peak', frequencies.peak);
+    renderFrequencyList('offPeak', frequencies.offPeak);
+}
+
+function renderFrequencyList(type, items) {
+    const list = document.getElementById(`${type}FrequenciesList`);
+    list.innerHTML = items.map(item => `
+        <li style="margin: 5px; padding: 5px; background: #f5f5f5; border-radius: 5px; display: flex; justify-content: space-between; align-items: center;">
+            ${item}
+            <button onclick="removeFrequency('${type}', '${item}')" style="background: #ff4444; color: white; border: none; border-radius: 3px; padding: 2px 5px;">×</button>
+        </li>
+    `).join('');
+}
+
+function addFrequency(type) {
+    const input = document.getElementById(`new${type === 'peak' ? 'Peak' : 'OffPeak'}Frequency`);
+    const value = input.value;
+    if (value && !frequencies[type].includes(value)) {
+        frequencies[type].push(value);
+        frequencies[type].sort();
+        renderFrequencies();
+        input.value = '';
+    }
+}
+
+function removeFrequency(type, value) {
+    frequencies[type] = frequencies[type].filter(f => f !== value);
+    renderFrequencies();
+}
+
+function saveFrequencies() {
+    localStorage.setItem('frequencies', JSON.stringify(frequencies));
+    alert("Fréquences sauvegardées !");
+}
+
+// Initialisation au chargement
+document.addEventListener('DOMContentLoaded', loadFrequencies);
 
     </script>
 
